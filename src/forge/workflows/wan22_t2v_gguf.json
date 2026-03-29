@@ -1,0 +1,15 @@
+{
+  "1": {
+    "class_type": "WanTextToVideo",
+    "inputs": {
+      "prompt": "{{prompt}}",
+      "negative_prompt": "{{negative_prompt}}"
+    }
+  },
+  "2": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

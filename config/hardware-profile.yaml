@@ -1,0 +1,27 @@
+{
+  "gpu": {
+    "name": "RTX 4080 Super",
+    "vram_gb": 16,
+    "cuda_compute": 8.9
+  },
+  "cpu": {
+    "name": "Ryzen 9 7950X3D",
+    "cores": 16,
+    "threads": 32
+  },
+  "ram": {
+    "total_gb": 32
+  },
+  "strategy": {
+    "vram_16gb": {
+      "sdxl": "fp16, batch_size=1",
+      "wan22": "gguf_q8 + temporal_rolling_vae",
+      "wan22_fast": "gguf_q4",
+      "ltx2": "gguf_q4_k_m",
+      "propainter": "fp16, --height 320 --width 576"
+    },
+    "offload_threshold_gb": 14,
+    "concurrent_tasks": 1,
+    "ram_offload_available_gb": 16
+  }
+}

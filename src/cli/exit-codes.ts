@@ -1,0 +1,3 @@
+export const EXIT_CODE_SUCCESS = 0;
+export const EXIT_CODE_INTERNAL_ERROR = 1;
+export const EXIT_CODE_VALIDATION_FAILURE = 2;

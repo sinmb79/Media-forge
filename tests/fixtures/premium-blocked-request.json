@@ -1,0 +1,32 @@
+{
+  "version": "0.1",
+  "intent": {
+    "topic": "AI meeting note tool",
+    "subject": "young professional using laptop",
+    "goal": "make a short-form explainer clip",
+    "emotion": "curiosity and satisfaction",
+    "platform": "youtube_shorts",
+    "theme": "explainer",
+    "duration_sec": 20
+  },
+  "constraints": {
+    "language": "en",
+    "budget_tier": "low",
+    "quality_tier": "premium",
+    "visual_consistency_required": true,
+    "content_policy_safe": true
+  },
+  "style": {
+    "hook_type": "curiosity",
+    "pacing_profile": "fast_cut",
+    "caption_style": "tiktok_viral",
+    "camera_language": "simple_push_in"
+  },
+  "backend": {
+    "preferred_engine": "sora",
+    "allow_fallback": true
+  },
+  "output": {
+    "type": "video_prompt"
+  }
+}

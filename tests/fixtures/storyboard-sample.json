@@ -1,0 +1,19 @@
+{
+  "scenes": [
+    {
+      "image": "scene1.png",
+      "desc": "공주가 숲에서 걷는다",
+      "duration": 5
+    },
+    {
+      "image": "scene2.png",
+      "desc": "나비가 날아온다",
+      "duration": 5
+    }
+  ],
+  "transition": "ai",
+  "output": {
+    "resolution": "720p",
+    "format": "mp4"
+  }
+}

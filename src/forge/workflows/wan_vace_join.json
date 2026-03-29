@@ -1,0 +1,19 @@
+{
+  "1": {
+    "inputs": {
+      "clip_paths": "{{clips_json}}",
+      "transition": "{{transition}}"
+    },
+    "class_type": "WanVACEVideoJoiner"
+  },
+  "2": {
+    "inputs": {
+      "filename_prefix": "{{output_path}}",
+      "videos": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "SaveVideo"
+  }
+}

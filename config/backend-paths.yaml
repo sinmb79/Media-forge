@@ -1,0 +1,50 @@
+{
+  "backends": {
+    "comfyui": {
+      "configured_paths": [
+        "%USERPROFILE%/ComfyUI",
+        "%USERPROFILE%/workspace/ComfyUI",
+        "C:/ComfyUI"
+      ],
+      "entry_file": "main.py",
+      "install_guide_url": "https://github.com/comfyanonymous/ComfyUI"
+    },
+    "ffmpeg": {
+      "executables": [
+        "ffmpeg"
+      ],
+      "version_args": [
+        "-version"
+      ],
+      "install_guide_url": "https://ffmpeg.org/download.html"
+    },
+    "python": {
+      "executables": [
+        "python",
+        "python3",
+        "py"
+      ],
+      "version_args": [
+        "--version"
+      ],
+      "install_guide_url": "https://www.python.org/downloads/"
+    },
+    "ollama": {
+      "executables": [
+        "ollama"
+      ],
+      "version_args": [
+        "--version"
+      ],
+      "install_guide_url": "https://ollama.com/download"
+    },
+    "propainter": {
+      "configured_paths": [
+        "%USERPROFILE%/ProPainter",
+        "%USERPROFILE%/workspace/ProPainter"
+      ],
+      "entry_file": "inference_propainter.py",
+      "install_guide_url": "https://github.com/sczhou/ProPainter"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "1": {
+    "class_type": "StoryboardInput",
+    "inputs": {
+      "storyboard_json": "{{storyboard_json}}",
+      "scene_count": "{{scene_count}}"
+    }
+  },
+  "2": {
+    "class_type": "WanSVILongVideo",
+    "inputs": {
+      "mode": "storyboard"
+    }
+  },
+  "3": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

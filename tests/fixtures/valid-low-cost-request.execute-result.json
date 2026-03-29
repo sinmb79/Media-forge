@@ -1,0 +1,123 @@
+{
+  "schema_version": "0.1",
+  "executed_at": "2026-03-29T12:04:31.394Z",
+  "dry_run": true,
+  "nodes": [
+    {
+      "node_id": "prompt_normalizer",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "tool_adapter",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "formatter",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "quality_checker",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "tts_candidate",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "video_candidate",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "final_polish",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "formatter_fallback",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "tts_candidate_local",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    },
+    {
+      "node_id": "video_candidate_gpu",
+      "adapter": "local",
+      "status": "dry_run",
+      "metadata": {
+        "adapter": "local",
+        "prompt_length": 20,
+        "duration_sec": 20,
+        "aspect_ratio": "9:16"
+      }
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "success": 0,
+    "dry_run": 10,
+    "error": 0
+  }
+}

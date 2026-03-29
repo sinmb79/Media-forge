@@ -1,0 +1,41 @@
+{
+  "version": "0.1",
+  "intent": {
+    "topic": "fantasy archive reveal",
+    "subject": "young heroine in hidden library",
+    "goal": "make a dramatic short-form teaser",
+    "emotion": "tension",
+    "platform": "youtube_shorts",
+    "theme": "cinematic",
+    "duration_sec": 20
+  },
+  "constraints": {
+    "language": "en",
+    "budget_tier": "balanced",
+    "quality_tier": "balanced",
+    "visual_consistency_required": true,
+    "content_policy_safe": true
+  },
+  "style": {
+    "hook_type": "shock",
+    "pacing_profile": "fast_cut",
+    "caption_style": "dramatic_subtitles",
+    "camera_language": "push_in_reveal"
+  },
+  "backend": {
+    "preferred_engine": "local",
+    "allow_fallback": true
+  },
+  "output": {
+    "type": "video_prompt"
+  },
+  "novel_project": {
+    "mode": "cliffhanger_short",
+    "episode_number": 12,
+    "scene_summary": "Mina opens the hidden archive and hears footsteps behind her as the light goes out.",
+    "emotional_peak": "shock and dread",
+    "cliffhanger_strength": 0.92,
+    "character_focus": "Mina",
+    "visual_style_profile": "moody neon archive"
+  }
+}

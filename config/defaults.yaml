@@ -1,0 +1,18 @@
+{
+  "forge": {
+    "workspace_cache_dir": "data/cache",
+    "output_dir": "outputs"
+  },
+  "comfyui": {
+    "default_port": 8188,
+    "auto_start": false
+  },
+  "ollama": {
+    "default_port": 11434,
+    "default_model": "qwen3:14b"
+  },
+  "video": {
+    "default_quality": "balanced",
+    "default_duration_sec": 5
+  }
+}

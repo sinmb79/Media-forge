@@ -1,0 +1,22 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "{{image_path}}"
+    }
+  },
+  "2": {
+    "class_type": "WanImageToVideo",
+    "inputs": {
+      "prompt": "{{prompt}}",
+      "negative_prompt": "{{negative_prompt}}",
+      "quantization": "q8"
+    }
+  },
+  "3": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

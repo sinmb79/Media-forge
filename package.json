@@ -1,0 +1,22 @@
+{
+  "name": "shorts-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A simulate-first TypeScript CLI for validating shorts engine requests, routing cost decisions, and simulating recovery behavior.",
+  "type": "module",
+  "bin": {
+    "engine": "./dist/src/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
+    "run": "npm run build && node dist/src/cli/index.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
+  }
+}
