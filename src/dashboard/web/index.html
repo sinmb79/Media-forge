@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MediaForge Studio</title>
+    <link rel="icon" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="16" fill="%230d1018"/%3E%3Cpath d="M18 46V18h9.4l6.6 11.2L40.6 18H50v28h-8.3V31l-7.6 12.3h-.4L26.1 31v15z" fill="%23f58f6c"/%3E%3C/svg%3E' />
+    <link rel="stylesheet" href="/dashboard.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="background-orb orb-a"></div>
+      <div class="background-orb orb-b"></div>
+
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Local-first AI media workstation</p>
+          <h1>MediaForge Studio</h1>
+        </div>
+        <div class="status-panel">
+          <div class="status-box">
+            <span class="status-label">Workspace</span>
+            <strong id="workspace-path">Loading...</strong>
+          </div>
+          <div class="status-box">
+            <span class="status-label">Hardware</span>
+            <strong id="hardware-summary">Loading...</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="status-strip">
+        <div class="status-card">
+          <div class="status-card-header">
+            <h2>Backend Status</h2>
+            <div class="action-row">
+              <button type="button" class="ghost-button" data-quick-action="doctor">Doctor</button>
+              <button type="button" class="ghost-button" data-quick-action="probe">Probe</button>
+              <button type="button" class="ghost-button" data-quick-action="paths-validate">Paths</button>
+            </div>
+          </div>
+          <div id="backend-pills" class="pill-row"></div>
+        </div>
+      </section>
+
+      <main class="studio-layout">
+        <aside class="studio-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Forge Studio</p>
+              <h2>Generate and control</h2>
+            </div>
+          </div>
+
+          <div class="tab-row">
+            <button type="button" class="tab-button active" data-tab="prompt">Prompt</button>
+            <button type="button" class="tab-button" data-tab="image">Image</button>
+            <button type="button" class="tab-button" data-tab="video">Video</button>
+            <button type="button" class="tab-button" data-tab="edit">Edit</button>
+            <button type="button" class="tab-button" data-tab="audio">Audio</button>
+            <button type="button" class="tab-button" data-tab="pipeline">Pipeline</button>
+          </div>
+
+          <section class="tab-panel active" data-panel="prompt">
+            <form id="prompt-form" class="studio-form">
+              <label>
+                <span>Description (KO)</span>
+                <textarea name="desc" rows="4" placeholder="공주가 숲에서 나비를 쫓다가 마법의 호수를 발견한다"></textarea>
+              </label>
+              <label>
+                <span>Theme</span>
+                <input name="theme" type="text" placeholder="fairy_tale" />
+              </label>
+              <label>
+                <span>Model</span>
+                <input name="model" type="text" placeholder="qwen3.5:9b" />
+              </label>
+              <button type="submit" class="primary-button">Build Prompt</button>
+            </form>
+          </section>
+
+          <section class="tab-panel" data-panel="image">
+            <form id="image-form" class="studio-form">
+              <label>
+                <span>Sketch Path</span>
+                <input name="sketchPath" type="text" placeholder="tests/fixtures/sketch-placeholder.png" />
+              </label>
+              <label>
+                <span>Description</span>
+                <textarea name="desc" rows="3" placeholder="한국어 설명"></textarea>
+              </label>
+              <label>
+                <span>Theme</span>
+                <input name="theme" type="text" placeholder="fairy_tale" />
+              </label>
+              <label class="checkbox-row">
+                <input name="simulate" type="checkbox" checked />
+                <span>Simulate only</span>
+              </label>
+              <button type="submit" class="primary-button">Run Sketch To Image</button>
+            </form>
+          </section>
+
+          <section class="tab-panel" data-panel="video">
+            <form id="video-form" class="studio-form">
+              <label>
+                <span>Mode</span>
+                <select name="mode">
+                  <option value="video-from-image">From Image</option>
+                  <option value="video-from-text">From Text</option>
+                </select>
+              </label>
+              <label>
+                <span>Image Path</span>
+                <input name="imagePath" type="text" placeholder="outputs/scene.png" />
+              </label>
+              <label>
+                <span>Description</span>
+                <textarea name="desc" rows="3" placeholder="카메라가 천천히 전진한다"></textarea>
+              </label>
+              <div class="field-grid">
+                <label>
+                  <span>Model</span>
+                  <input name="model" type="text" value="wan22" />
+                </label>
+                <label>
+                  <span>Quality</span>
+                  <select name="quality">
+                    <option value="production">production</option>
+                    <option value="draft">draft</option>
+                  </select>
+                </label>
+              </div>
+              <label class="checkbox-row">
+                <input name="simulate" type="checkbox" checked />
+                <span>Simulate only</span>
+              </label>
+              <button type="submit" class="primary-button">Run Video Action</button>
+            </form>
+          </section>
+
+          <section class="tab-panel" data-panel="edit">
+            <form id="edit-form" class="studio-form">
+              <label>
+                <span>Operation</span>
+                <select name="subcommand">
+                  <option value="cut">cut</option>
+                  <option value="resize">resize</option>
+                  <option value="speed">speed</option>
+                  <option value="stabilize">stabilize</option>
+                  <option value="upscale">upscale</option>
+                  <option value="interpolate">interpolate</option>
+                </select>
+              </label>
+              <label>
+                <span>Input Path</span>
+                <input name="input" type="text" placeholder="outputs/clip.mp4" />
+              </label>
+              <div class="field-grid">
+                <label>
+                  <span>Start</span>
+                  <input name="start" type="text" placeholder="00:05" />
+                </label>
+                <label>
+                  <span>End</span>
+                  <input name="end" type="text" placeholder="00:15" />
+                </label>
+              </div>
+              <div class="field-grid">
+                <label>
+                  <span>Factor</span>
+                  <input name="factor" type="text" placeholder="0.5" />
+                </label>
+                <label>
+                  <span>Resolution</span>
+                  <input name="resolution" type="text" placeholder="1080p" />
+                </label>
+              </div>
+              <label class="checkbox-row">
+                <input name="simulate" type="checkbox" checked />
+                <span>Simulate only</span>
+              </label>
+              <button type="submit" class="primary-button">Run Edit Action</button>
+            </form>
+          </section>
+
+          <section class="tab-panel" data-panel="audio">
+            <form id="audio-form" class="studio-form">
+              <label>
+                <span>Operation</span>
+                <select name="subcommand">
+                  <option value="tts">tts</option>
+                  <option value="transcribe">transcribe</option>
+                  <option value="add-subs">add-subs</option>
+                  <option value="add-bgm">add-bgm</option>
+                </select>
+              </label>
+              <label>
+                <span>Input Path</span>
+                <input name="input" type="text" placeholder="outputs/clip.mp4" />
+              </label>
+              <label>
+                <span>Text</span>
+                <textarea name="text" rows="3" placeholder="안녕하세요"></textarea>
+              </label>
+              <div class="field-grid">
+                <label>
+                  <span>Language</span>
+                  <input name="lang" type="text" value="ko" />
+                </label>
+                <label>
+                  <span>Volume</span>
+                  <input name="volume" type="text" value="0.3" />
+                </label>
+              </div>
+              <label class="checkbox-row">
+                <input name="simulate" type="checkbox" checked />
+                <span>Simulate only</span>
+              </label>
+              <button type="submit" class="primary-button">Run Audio Action</button>
+            </form>
+          </section>
+
+          <section class="tab-panel" data-panel="pipeline">
+            <form id="pipeline-form" class="studio-form">
+              <label>
+                <span>Pipeline</span>
+                <select name="subcommand">
+                  <option value="sketch-to-video">sketch-to-video</option>
+                  <option value="storyboard">storyboard</option>
+                  <option value="sketch-to-long-video">sketch-to-long-video</option>
+                </select>
+              </label>
+              <label>
+                <span>Primary Input</span>
+                <input name="primaryInput" type="text" placeholder="tests/fixtures/sketch-placeholder.png" />
+              </label>
+              <label>
+                <span>Description</span>
+                <textarea name="desc" rows="3" placeholder="설명"></textarea>
+              </label>
+              <label class="checkbox-row">
+                <input name="simulate" type="checkbox" checked />
+                <span>Simulate only</span>
+              </label>
+              <button type="submit" class="primary-button">Run Pipeline</button>
+            </form>
+          </section>
+        </aside>
+
+        <section class="preview-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Preview Workspace</p>
+              <h2>Results and details</h2>
+            </div>
+          </div>
+          <div id="preview-surface" class="preview-surface">
+            <div class="empty-preview">
+              <p>No output selected yet.</p>
+              <small>Choose a recent result or run an action from the studio panel.</small>
+            </div>
+          </div>
+          <div id="preview-meta" class="preview-meta"></div>
+          <pre id="result-log" class="result-log">Waiting for action output...</pre>
+        </section>
+
+        <aside class="queue-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Run Queue</p>
+              <h2>Live jobs</h2>
+            </div>
+          </div>
+          <div id="queue-list" class="queue-list"></div>
+        </aside>
+      </main>
+
+      <section class="timeline-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Light Timeline</p>
+            <h2>Recent outputs</h2>
+          </div>
+        </div>
+        <div id="timeline-list" class="timeline-list"></div>
+      </section>
+    </div>
+
+    <script src="/dashboard.js" type="module"></script>
+  </body>
+</html>

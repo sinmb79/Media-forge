@@ -6,6 +6,7 @@ import {
 } from "./exit-codes.js";
 import { configEngineCommand } from "./config-engine-command.js";
 import { createEngineCommand } from "./create-engine-command.js";
+import { dashboardEngineCommand } from "./dashboard-engine-command.js";
 import { doctorEngineCommand } from "./doctor-engine-command.js";
 import { forgeEngineCommand } from "./forge-engine-command.js";
 import { promptEngineCommand } from "./prompt-engine-command.js";
@@ -24,7 +25,7 @@ const simulate = parsed.flags.has("simulate");
 
 if (!command) {
   process.stderr.write(
-    "Usage: engine <run|prompt|create|wizard|execute|config|doctor|analyze|render|publish|forge> [request.json] [--json] [--simulate]\n",
+    "Usage: engine <run|prompt|create|wizard|execute|config|doctor|dashboard|analyze|render|publish|forge> [request.json] [--json] [--simulate]\n",
   );
   process.exit(EXIT_CODE_INTERNAL_ERROR);
 }
@@ -32,12 +33,16 @@ if (!command) {
 const dry_run = parsed.flags.has("dry-run");
 const result = await executeCommand(command, parsed.positionals, {
   dry_run,
+  flags: parsed.flags,
   json,
   optionValues: parsed.optionValues,
   simulate,
 });
 process.stdout.write(result.output);
-process.exit(result.exitCode);
+
+if (!result.keepAlive) {
+  process.exit(result.exitCode);
+}
 
 async function executeCommand(
   commandName: string,
@@ -46,15 +51,25 @@ async function executeCommand(
     json: boolean;
     simulate: boolean;
     dry_run: boolean;
+    flags: Set<string>;
     optionValues: Record<string, string[]>;
   },
-) {
+): Promise<{ exitCode: number; keepAlive?: boolean; output: string }> {
   if (commandName === "config") {
     return configEngineCommand({ json: options.json });
   }
 
   if (commandName === "doctor") {
     return doctorEngineCommand({ json: options.json });
+  }
+
+  if (commandName === "dashboard") {
+    return dashboardEngineCommand({
+      host: options.optionValues.host?.[0] ?? null,
+      json: options.json,
+      open: options.flags.has("open"),
+      port: options.optionValues.port?.[0] ? Number(options.optionValues.port[0]) : null,
+    });
   }
 
   if (commandName === "forge") {
@@ -103,12 +118,13 @@ async function executeCommand(
     || (commandName !== "run"
       && commandName !== "prompt"
       && commandName !== "analyze"
+      && commandName !== "dashboard"
       && commandName !== "render"
       && commandName !== "publish")
   ) {
     return {
       exitCode: EXIT_CODE_INTERNAL_ERROR,
-      output: "Usage: engine <run|prompt|create|wizard|execute|config|doctor|analyze|render|publish|forge> [request.json] [--json] [--simulate]\n",
+      output: "Usage: engine <run|prompt|create|wizard|execute|config|doctor|dashboard|analyze|render|publish|forge> [request.json] [--json] [--simulate]\n",
     };
   }
 

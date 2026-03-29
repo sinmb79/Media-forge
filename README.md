@@ -65,6 +65,41 @@ npm run engine -- forge install ffmpeg --json
 `install` 명령은 자동 설치기가 아니라 공개 저장소 친화적인 설치 안내 명령입니다.  
 실행 파일 이름, 예상 경로, 공식 설치 URL을 출력합니다.
 
+## 대시보드
+
+MediaForge는 CLI만이 아니라 로컬 웹 대시보드도 제공합니다.  
+대시보드는 `CapCut` 스타일의 작업 레이아웃과 `Kling AI` 스타일의 생성 스튜디오 감각을 섞은 형태로, 백엔드 상태, 프롬프트 생성, 이미지/영상 실행, 작업 큐, 최근 출력물을 한 화면에서 볼 수 있습니다.
+
+대시보드 실행:
+
+```bash
+npm run engine -- dashboard --open
+```
+
+기본 주소:
+
+```text
+http://127.0.0.1:3210
+```
+
+포트만 바꾸고 싶다면:
+
+```bash
+npm run engine -- dashboard --port 3211
+```
+
+대시보드 특징:
+
+- 상단 상태바에서 워크스페이스, GPU, RAM, 백엔드 준비 상태를 바로 확인
+- 좌측 `Forge Studio`에서 `Prompt`, `Image`, `Video`, `Edit`, `Audio`, `Pipeline` 작업 실행
+- 중앙 `Preview Workspace`에서 최근 결과 미리보기
+- 우측 `Run Queue`에서 실행 중 작업과 결과 확인
+- 하단 `Light Timeline`에서 최근 산출물을 빠르게 훑어보기
+
+대시보드 예시:
+
+![MediaForge Dashboard](docs/assets/mediaforge-dashboard.png)
+
 ## 기존 Shorts-engine 명령
 
 기존 엔진 명령은 그대로 사용할 수 있습니다.
@@ -180,6 +215,7 @@ MediaForge는 실행 경계를 분리해서 유지합니다.
 ## 현재 상태
 
 - MediaForge 명령군 구현 완료
+- 로컬 웹 대시보드 구현 완료
 - 테스트 통과
 - 로컬 Ollama 실환경 스모크 테스트 확인
 - ComfyUI, FFmpeg, Whisper, Edge TTS, ProPainter는 사용자 환경 설치 후 바로 연결 가능
