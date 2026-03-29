@@ -9,6 +9,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "preengine": "npm run build",
+    "engine": "node dist/src/cli/index.js",
     "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
     "run": "npm run build && node dist/src/cli/index.js"
   },

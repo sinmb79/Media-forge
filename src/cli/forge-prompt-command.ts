@@ -13,6 +13,7 @@ export async function forgePromptCommand(
 
   if (subcommand === "build") {
     const desc = options.optionValues.desc?.[0];
+    const model = options.optionValues.model?.[0];
     const theme = options.optionValues.theme?.[0] ?? null;
 
     if (!desc) {
@@ -26,6 +27,7 @@ export async function forgePromptCommand(
       desc_ko: desc,
       ollamaClient: new OllamaBackend(),
       theme,
+      ...(model ? { model } : {}),
     });
 
     if (options.json) {
