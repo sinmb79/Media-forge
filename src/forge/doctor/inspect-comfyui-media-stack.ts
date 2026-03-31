@@ -216,25 +216,13 @@ const CAPABILITY_DEFINITIONS: CapabilityDefinition[] = [
       ], "https://github.com/kijai/ComfyUI-KJNodes"),
       modelDependency(
         "skyreels_ref2v_model",
-        "SkyReels Ref2V FP8 model",
-        ["diffusion_models"],
-        (entryName) => matchesAll(entryName, ["skyreels", "ref2v", "fp8_scaled_mixed"]),
+        "SkyReels Ref2V model",
+        ["diffusion_models", "diffusion_models/r2v"],
+        (entryName) => matchesAll(entryName, ["skyreels", "r2v"]) && (entryName.endsWith(".safetensors") || entryName.endsWith(".gguf")),
         SKYREELS_INSTALL_GUIDE_URL,
       ),
-      modelDependency(
-        "wan_vae",
-        "Wan 2.1 VAE",
-        ["vae"],
-        (entryName) => matchesAll(entryName, ["wan2_1_vae"]) && entryName.endsWith(".safetensors"),
-        SKYREELS_INSTALL_GUIDE_URL,
-      ),
-      modelDependency(
-        "umt5_fp8",
-        "UMT5 FP8 encoder",
-        ["text_encoders", "clip"],
-        (entryName) => matchesAll(entryName, ["umt5-xxl-enc", "fp8"]) && entryName.endsWith(".safetensors"),
-        SKYREELS_INSTALL_GUIDE_URL,
-      ),
+      wanVaeDependency(),
+      umt5Fp8Dependency(),
     ],
   },
   {
@@ -253,30 +241,18 @@ const CAPABILITY_DEFINITIONS: CapabilityDefinition[] = [
       ], "https://github.com/kijai/ComfyUI-KJNodes"),
       modelDependency(
         "skyreels_a2v_model",
-        "SkyReels A2V FP8 model",
-        ["diffusion_models"],
-        (entryName) => matchesAll(entryName, ["skyreels", "a2v", "fp8_scaled_mixed"]),
+        "SkyReels A2V model",
+        ["diffusion_models", "diffusion_models/a2v"],
+        (entryName) => matchesAll(entryName, ["skyreels", "a2v"]) && (entryName.endsWith(".safetensors") || entryName.endsWith(".gguf")),
         SKYREELS_INSTALL_GUIDE_URL,
       ),
-      modelDependency(
-        "wan_vae",
-        "Wan 2.1 VAE",
-        ["vae"],
-        (entryName) => matchesAll(entryName, ["wan2_1_vae"]) && entryName.endsWith(".safetensors"),
-        SKYREELS_INSTALL_GUIDE_URL,
-      ),
-      modelDependency(
-        "umt5_fp8",
-        "UMT5 FP8 encoder",
-        ["text_encoders", "clip"],
-        (entryName) => matchesAll(entryName, ["umt5-xxl-enc", "fp8"]) && entryName.endsWith(".safetensors"),
-        SKYREELS_INSTALL_GUIDE_URL,
-      ),
+      wanVaeDependency(),
+      umt5Fp8Dependency(),
       modelDependency(
         "melbandroformer",
         "MelBandRoformer audio processor",
         ["audio_models", "audio_encoders"],
-        (entryName) => matchesAll(entryName, ["melbandroformer"]) && entryName.endsWith(".safetensors"),
+        (entryName) => matchesAll(entryName, ["melbandroformer"]) && (entryName.endsWith(".safetensors") || entryName.endsWith(".ckpt")),
         SKYREELS_INSTALL_GUIDE_URL,
       ),
     ],
@@ -297,25 +273,13 @@ const CAPABILITY_DEFINITIONS: CapabilityDefinition[] = [
       ], "https://github.com/kijai/ComfyUI-KJNodes"),
       modelDependency(
         "skyreels_v2v_model",
-        "SkyReels V2V FP8 model",
-        ["diffusion_models"],
-        (entryName) => matchesAll(entryName, ["skyreels", "v2v", "fp8_scaled_mixed"]),
+        "SkyReels V2V model",
+        ["diffusion_models", "diffusion_models/v2v"],
+        (entryName) => matchesAll(entryName, ["skyreels", "v2v"]) && (entryName.endsWith(".safetensors") || entryName.endsWith(".gguf")),
         SKYREELS_INSTALL_GUIDE_URL,
       ),
-      modelDependency(
-        "wan_vae",
-        "Wan 2.1 VAE",
-        ["vae"],
-        (entryName) => matchesAll(entryName, ["wan2_1_vae"]) && entryName.endsWith(".safetensors"),
-        SKYREELS_INSTALL_GUIDE_URL,
-      ),
-      modelDependency(
-        "umt5_fp8",
-        "UMT5 FP8 encoder",
-        ["text_encoders", "clip"],
-        (entryName) => matchesAll(entryName, ["umt5-xxl-enc", "fp8"]) && entryName.endsWith(".safetensors"),
-        SKYREELS_INSTALL_GUIDE_URL,
-      ),
+      wanVaeDependency(),
+      umt5Fp8Dependency(),
     ],
   },
   {
@@ -355,6 +319,26 @@ const CAPABILITY_DEFINITIONS: CapabilityDefinition[] = [
     ],
   },
 ];
+
+function wanVaeDependency(): DependencyDefinition {
+  return modelDependency(
+    "wan_vae",
+    "Wan 2.1 VAE",
+    ["vae", "vae/split_files/vae"],
+    (entryName) => (matchesAll(entryName, ["wan", "vae"]) || matchesAll(entryName, ["wan2_1_vae"])) && entryName.endsWith(".safetensors"),
+    SKYREELS_INSTALL_GUIDE_URL,
+  );
+}
+
+function umt5Fp8Dependency(): DependencyDefinition {
+  return modelDependency(
+    "umt5_fp8",
+    "UMT5 FP8 encoder",
+    ["text_encoders", "text_encoders/split_files/text_encoders", "clip"],
+    (entryName) => matchesAll(entryName, ["umt5", "fp8"]) && entryName.endsWith(".safetensors"),
+    SKYREELS_INSTALL_GUIDE_URL,
+  );
+}
 
 function backendDependency(
   id: string,
