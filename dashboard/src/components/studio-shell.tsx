@@ -7,14 +7,17 @@ import type { ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
 import {
   Blocks,
+  BookOpen,
   Clapperboard,
   FolderKanban,
   ImagePlus,
   LayoutDashboard,
   ListVideo,
   Music4,
+  PanelTop,
   Settings2,
   Sparkles,
+  Users,
   WandSparkles,
 } from "lucide-react";
 
@@ -33,6 +36,9 @@ const navIcons = {
   edit: Sparkles,
   visual: WandSparkles,
   audio: Music4,
+  scenario: BookOpen,
+  webtoon: PanelTop,
+  characters: Users,
   assets: FolderKanban,
   queue: Blocks,
   settings: Settings2,
@@ -73,6 +79,21 @@ export const studioPageCopy: Record<string, { eyebrow: string; title: string; de
     eyebrow: "음성 및 자막",
     title: "오디오 스튜디오",
     description: "TTS, 드라마 음성, 전사, BGM, 믹싱, 보이스 분리를 로컬에서 이어서 다룹니다.",
+  },
+  "/characters": {
+    eyebrow: "캐릭터 라이브러리",
+    title: "캐릭터 관리",
+    description: "캐릭터를 등록하고 레퍼런스 이미지로 모든 씬에서 동일 외형을 유지합니다.",
+  },
+  "/scenario": {
+    eyebrow: "시나리오 파이프라인",
+    title: "시나리오 수집",
+    description: "블로그에서 생성된 시나리오를 웹툰, 숏폼, 롱폼으로 자동 변환합니다.",
+  },
+  "/webtoon": {
+    eyebrow: "웹툰 스튜디오",
+    title: "웹툰 생성",
+    description: "시나리오를 패널별 또는 페이지별 웹툰 이미지로 생성합니다.",
   },
   "/assets": {
     eyebrow: "프로젝트 자산",
