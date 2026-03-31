@@ -9,10 +9,15 @@
     }
   },
   "2": {
-    "class_type": "LoadWanVideoT5TextEncoder",
+    "class_type": "WanVideoTextEncodeCached",
     "inputs": {
-      "model_name": "split_files\\text_encoders\\umt5_xxl_fp8_e4m3fn_scaled.safetensors",
-      "precision": "bf16"
+      "model_name": "split_files\\text_encoders\\umt5_xxl_fp16.safetensors",
+      "precision": "bf16",
+      "positive_prompt": "{{prompt}}",
+      "negative_prompt": "{{negative_prompt}}",
+      "quantization": "disabled",
+      "use_disk_cache": true,
+      "device": "gpu"
     }
   },
   "3": {
@@ -22,15 +27,6 @@
     }
   },
   "4": {
-    "class_type": "WanVideoTextEncode",
-    "inputs": {
-      "positive_prompt": "{{prompt}}",
-      "negative_prompt": "{{negative_prompt}}",
-      "t5": ["2", 0],
-      "force_offload": true
-    }
-  },
-  "5": {
     "class_type": "WanVideoEmptyEmbeds",
     "inputs": {
       "width": 832,
@@ -38,12 +34,12 @@
       "num_frames": 81
     }
   },
-  "6": {
+  "5": {
     "class_type": "WanVideoSampler",
     "inputs": {
       "model": ["1", 0],
-      "image_embeds": ["5", 0],
-      "text_embeds": ["4", 0],
+      "image_embeds": ["4", 0],
+      "text_embeds": ["2", 0],
       "steps": 25,
       "cfg": 6.0,
       "shift": 5.0,
@@ -53,11 +49,11 @@
       "riflex_freq_index": 0
     }
   },
-  "7": {
+  "6": {
     "class_type": "WanVideoDecode",
     "inputs": {
       "vae": ["3", 0],
-      "samples": ["6", 0],
+      "samples": ["5", 0],
       "enable_vae_tiling": true,
       "tile_x": 272,
       "tile_y": 272,
@@ -65,17 +61,17 @@
       "tile_stride_y": 128
     }
   },
-  "8": {
+  "7": {
     "class_type": "CreateVideo",
     "inputs": {
-      "images": ["7", 0],
+      "images": ["6", 0],
       "fps": 16.0
     }
   },
-  "9": {
+  "8": {
     "class_type": "SaveVideo",
     "inputs": {
-      "video": ["8", 0],
+      "video": ["7", 0],
       "filename_prefix": "{{output_path}}",
       "format": "mp4",
       "codec": "h264"
