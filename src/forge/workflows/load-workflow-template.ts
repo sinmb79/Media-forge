@@ -11,7 +11,18 @@ export async function loadWorkflowTemplate(
   const filePath = path.resolve(resolveMediaForgeRoot(rootDir), "src", "forge", "workflows", `${workflowId}.json`);
   const raw = await readFile(filePath, "utf8");
   const parsed = JSON.parse(raw) as unknown;
-  return substituteTemplateValues(parsed, variables);
+  const sanitized = sanitizeOutputPath(variables);
+  return substituteTemplateValues(parsed, sanitized);
+}
+
+function sanitizeOutputPath(
+  variables: Record<string, string | number | boolean>,
+): Record<string, string | number | boolean> {
+  const outputPath = variables.output_path;
+  if (typeof outputPath !== "string") return variables;
+
+  const baseName = path.basename(outputPath).replace(/\.[^.]+$/, "");
+  return { ...variables, output_path: baseName };
 }
 
 function substituteTemplateValues(
