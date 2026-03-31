@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 
-import { OllamaBackend } from "../backends/ollama.js";
+import { resolveLLMClient } from "../backends/resolve-llm-client.js";
 import { runSketchToImage } from "../forge/image/sketch-to-image.js";
 import { runEpisodeAudioPipeline } from "../forge/pipeline/episode-audio.js";
 import { runPipelineChain } from "../forge/pipeline/chain.js";
@@ -230,7 +230,7 @@ export async function forgePipelineCommand(
           run: async () => {
             const storyboard = await generateStoryboardMode({
               desc_ko: desc,
-        ollamaClient: new OllamaBackend({ autoStart: true }),
+        ollamaClient: await resolveLLMClient(),
             });
             const storyboardPath = await writeGeneratedStoryboard(storyboard);
             return { storyboard: storyboardPath };

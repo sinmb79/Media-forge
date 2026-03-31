@@ -12,7 +12,7 @@ export interface TTSBackendOptions {
 }
 
 export class TTSBackend implements IBackend {
-  readonly name = "python" as const;
+  readonly name = "edge-tts" as const;
   private readonly options: TTSBackendOptions;
 
   constructor(options: TTSBackendOptions = {}) {

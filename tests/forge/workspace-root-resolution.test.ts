@@ -27,7 +27,7 @@ test("inspectBackends resolves the backend catalog from the dashboard app direct
 
   assert.deepEqual(
     statuses.map((status) => status.name),
-    ["comfyui", "ffmpeg", "python", "ollama", "propainter"],
+    ["comfyui", "ffmpeg", "python", "ollama", "edge-tts", "propainter"],
   );
   assert.ok(statuses.every((status) => status.available === false));
 });
@@ -75,6 +75,7 @@ test("inspectBackends prefers config-stage backend path overrides when present",
       ffmpeg: { configured_paths: ["C:/fallback/ffmpeg.exe"], executables: ["ffmpeg"], install_guide_url: "https://example.com/ffmpeg" },
       python: { configured_paths: ["C:/fallback/python.exe"], executables: ["python"], install_guide_url: "https://example.com/python" },
       ollama: { configured_paths: ["C:/fallback/ollama.exe"], executables: ["ollama"], install_guide_url: "https://example.com/ollama" },
+      "edge-tts": { executables: ["edge-tts"], install_guide_url: "https://example.com/edge-tts" },
       propainter: { configured_paths: ["C:/fallback/ProPainter"], entry_file: "inference_propainter.py", install_guide_url: "https://example.com/propainter" },
     },
   }));
@@ -86,6 +87,7 @@ test("inspectBackends prefers config-stage backend path overrides when present",
       ffmpeg: { configured_paths: ["D:/preferred/ffmpeg.exe"], executables: ["ffmpeg"], install_guide_url: "https://example.com/ffmpeg" },
       python: { configured_paths: ["D:/preferred/python.exe"], executables: ["python"], install_guide_url: "https://example.com/python" },
       ollama: { configured_paths: ["D:/preferred/ollama.exe"], executables: ["ollama"], install_guide_url: "https://example.com/ollama" },
+      "edge-tts": { configured_paths: ["D:/preferred/edge-tts"], executables: ["edge-tts"], install_guide_url: "https://example.com/edge-tts" },
       propainter: { configured_paths: ["D:/preferred/ProPainter"], entry_file: "inference_propainter.py", install_guide_url: "https://example.com/propainter" },
     },
   }));

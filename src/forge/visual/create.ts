@@ -1,4 +1,4 @@
-import { OllamaBackend } from "../../backends/ollama.js";
+import { resolveLLMClient } from "../../backends/resolve-llm-client.js";
 import type { FFmpegBackend } from "../../backends/ffmpeg.js";
 import {
   runVisualRender,
@@ -67,7 +67,7 @@ export async function runVisualCreate(
     };
   }
 
-  const generator = dependencies.ollama ?? new OllamaBackend({ autoStart: true });
+  const generator = dependencies.ollama ?? await resolveLLMClient();
   const generatedHtml = await tryGenerateVisualHtml(generator, input.prompt);
   const validHtml = isRenderableHtml(generatedHtml);
   const renderResult = await runVisualRender(

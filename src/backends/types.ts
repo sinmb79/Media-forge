@@ -1,4 +1,4 @@
-export type BackendName = "comfyui" | "ffmpeg" | "python" | "ollama" | "propainter";
+export type BackendName = "comfyui" | "edge-tts" | "ffmpeg" | "python" | "ollama" | "propainter";
 
 export type BackendDetectionSource = "config" | "path" | "missing";
 

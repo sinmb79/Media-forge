@@ -71,6 +71,7 @@ export async function inspectComfyUIMediaStack(
         customNodesDir,
         modelsDir,
         resolvedDependencies,
+        backends,
       )),
     );
     const missingDependencies = dependenciesForCapability
@@ -140,6 +141,65 @@ interface CapabilityDefinition {
 }
 
 const CAPABILITY_DEFINITIONS: CapabilityDefinition[] = [
+  {
+    id: "tts",
+    label: "Text-to-Speech (edge-tts)",
+    dependencies: [
+      {
+        id: "edge_tts_binary",
+        installGuideUrl: "https://github.com/rany2/edge-tts",
+        kind: "backend" as const,
+        label: "edge-tts CLI",
+      },
+    ],
+  },
+  {
+    id: "image_sketch",
+    label: "Sketch-to-Image (ControlNet)",
+    dependencies: [
+      backendDependency("comfyui_backend", "ComfyUI backend"),
+      modelDependency(
+        "sdxl_checkpoint",
+        "SDXL base checkpoint",
+        ["checkpoints"],
+        (entryName) => matchesAll(entryName, ["sd_xl_base"]) && entryName.endsWith(".safetensors"),
+        "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
+      ),
+      modelDependency(
+        "controlnet_scribble_sdxl",
+        "ControlNet Scribble SDXL model",
+        ["controlnet"],
+        (entryName) => matchesAll(entryName, ["controlnet", "scribble", "sdxl"]) && entryName.endsWith(".safetensors"),
+        "https://huggingface.co/xinsir/controlnet-scribble-sdxl-1.0",
+      ),
+    ],
+  },
+  {
+    id: "video_from_text",
+    label: "Text-to-Video (Wan 2.2 / LTX-2)",
+    dependencies: [
+      backendDependency("comfyui_backend", "ComfyUI backend"),
+      customNodeDependency("wanvideowrapper", "WanVideoWrapper node", [
+        "ComfyUI-WanVideoWrapper",
+      ], "https://github.com/kijai/ComfyUI-WanVideoWrapper"),
+      customNodeDependency("vhs", "VideoHelperSuite node", [
+        "ComfyUI-VideoHelperSuite",
+      ], "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"),
+    ],
+  },
+  {
+    id: "video_from_image",
+    label: "Image-to-Video (Wan 2.2 I2V)",
+    dependencies: [
+      backendDependency("comfyui_backend", "ComfyUI backend"),
+      customNodeDependency("wanvideowrapper", "WanVideoWrapper node", [
+        "ComfyUI-WanVideoWrapper",
+      ], "https://github.com/kijai/ComfyUI-WanVideoWrapper"),
+      customNodeDependency("vhs", "VideoHelperSuite node", [
+        "ComfyUI-VideoHelperSuite",
+      ], "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"),
+    ],
+  },
   {
     id: "skyreels_ref2v",
     label: "SkyReels Ref2V",
@@ -347,18 +407,23 @@ async function resolveDependencyStatus(
   customNodesDir: string | null,
   modelsDir: string | null,
   dependencies: InspectComfyUIMediaStackDependencies,
+  backends: BackendStatus[] = [],
 ): Promise<ForgeMediaDependencyStatus> {
   switch (definition.kind) {
-    case "backend":
+    case "backend": {
+      const backendTarget = definition.id === "edge_tts_binary"
+        ? backends.find((b) => b.name === "edge-tts") ?? null
+        : comfyuiStatus;
       return {
-        detected_path: comfyuiStatus?.detectedPath ?? null,
-        expected_paths: ["ComfyUI backend"],
+        detected_path: backendTarget?.detectedPath ?? null,
+        expected_paths: [definition.label],
         id: definition.id,
         install_guide_url: definition.installGuideUrl,
         kind: definition.kind,
         label: definition.label,
-        ready: comfyuiStatus?.available ?? false,
+        ready: backendTarget?.available ?? false,
       };
+    }
     case "custom_node": {
       const matchedEntry = findMatchingEntry(customNodeEntries, definition.candidates);
       return {

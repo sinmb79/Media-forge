@@ -1,8 +1,8 @@
 import * as path from "node:path";
 
 import { ComfyUIBackend } from "../../backends/comfyui.js";
-import { OllamaBackend } from "../../backends/ollama.js";
-import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
+import { resolveLLMClient } from "../../backends/resolve-llm-client.js";
+import { buildForgePromptBundle, type ForgePromptClient } from "../../prompt/forge-prompt-builder.js";
 import { createRequestId } from "../../shared/request-id.js";
 import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
@@ -34,7 +34,7 @@ export async function runSketchToImage(
   options: SketchToImageOptions,
   dependencies: {
     comfyClient?: ComfyUIBackend;
-    ollamaClient?: OllamaBackend;
+    ollamaClient?: ForgePromptClient;
   } = {},
 ): Promise<SketchToImageResult> {
   const requestId = createRequestId({
@@ -45,7 +45,7 @@ export async function runSketchToImage(
   const rootDir = resolveMediaForgeRoot(options.rootDir ?? process.cwd());
   const promptBundle = await buildForgePromptBundle({
     desc_ko: options.desc_ko,
-    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
+    ollamaClient: dependencies.ollamaClient ?? await resolveLLMClient({ rootDir }),
     theme: options.theme,
   });
   const workflowId = "sdxl_controlnet_scribble";

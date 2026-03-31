@@ -1,4 +1,4 @@
-import { OllamaBackend } from "../backends/ollama.js";
+import { resolveLLMClient } from "../backends/resolve-llm-client.js";
 import { getSuccessPatterns, saveFeedback } from "../learning/feedback.js";
 import { buildForgePromptBundle } from "../prompt/forge-prompt-builder.js";
 
@@ -25,7 +25,7 @@ export async function forgePromptCommand(
 
     const bundle = await buildForgePromptBundle({
       desc_ko: desc,
-      ollamaClient: new OllamaBackend({ autoStart: true }),
+      ollamaClient: await resolveLLMClient(),
       theme,
       ...(model ? { model } : {}),
     });

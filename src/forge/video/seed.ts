@@ -1,8 +1,8 @@
 import * as path from "node:path";
 
 import { FFmpegBackend } from "../../backends/ffmpeg.js";
-import { OllamaBackend } from "../../backends/ollama.js";
-import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
+import { resolveLLMClient } from "../../backends/resolve-llm-client.js";
+import { buildForgePromptBundle, type ForgePromptClient } from "../../prompt/forge-prompt-builder.js";
 import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { runVideoFromImage, type ForgeVideoResult } from "./from-image.js";
 import { runVideoFromText } from "./from-text.js";
@@ -46,7 +46,7 @@ export async function runVideoSeedSession(
   input: VideoSeedSessionOptions,
   dependencies: {
     ffmpegBackend?: FFmpegBackend;
-    ollamaClient?: OllamaBackend;
+    ollamaClient?: ForgePromptClient;
   } = {},
 ): Promise<VideoSeedSessionResult> {
   const backendRoot = path.resolve(input.rootDir ?? process.cwd());
@@ -188,13 +188,13 @@ function resolveWorkflowId(model: ForgeVideoModel, fromImagePath?: string): stri
 async function buildPromptBundleWithFallback(
   desc_ko: string,
   rootDir: string,
-  ollamaClient?: OllamaBackend,
+  ollamaClient?: ForgePromptClient,
   theme?: string | null,
 ) {
   try {
     return await buildForgePromptBundle({
       desc_ko,
-      ollamaClient: ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
+      ollamaClient: ollamaClient ?? await resolveLLMClient({ rootDir }),
       ...(theme !== undefined ? { theme } : {}),
     });
   } catch {

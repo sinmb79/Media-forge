@@ -1,7 +1,4 @@
-import { resolvePlanningContext } from "../cli/resolve-planning-context.js";
-import type { EngineRequest } from "../domain/contracts.js";
 import { getSuccessPatterns } from "../learning/feedback.js";
-import { buildPromptResult } from "./build-prompt-result.js";
 
 export interface ForgePromptBundle {
   desc_ko: string;
@@ -89,62 +86,28 @@ export async function buildVideoPrompt(
 }
 
 function buildFallbackPromptBundle(desc_ko: string, theme: string | null): ForgePromptBundle {
-  const request = buildSyntheticRequest(desc_ko, theme);
-  const context = resolvePlanningContext(request);
-  const promptResult = buildPromptResult({
-    brollPlan: context.broll_plan,
-    effectiveRequest: context.effective_request,
-    learningState: context.learning_state,
-    motionPlan: context.motion_plan,
-    novelShortsPlan: context.novel_shorts_plan,
-    platformOutputSpec: context.platform_output_spec,
-    routing: context.routing,
-    scoring: context.scoring,
-  });
+  const safeTheme = theme?.trim() || "cinematic";
+  const imagePrompt = [
+    safeTheme,
+    "masterpiece", "best quality", "highly detailed",
+    "4k", "sharp focus", "professional lighting",
+  ].join(", ");
+  const videoPrompt = [
+    safeTheme,
+    "smooth motion", "cinematic", "high quality",
+    "4k", "professional", "detailed",
+    "Camera language: simple_push_in.",
+  ].join(", ");
+  const negativePrompt = "blurry, low quality, distorted, deformed, ugly, text, watermark, oversaturated, underexposed";
 
   return {
     desc_ko,
-    image_negative: promptResult.negative_prompt,
-    image_prompt: [theme ?? "default_theme", "still image", promptResult.main_prompt].join(", "),
+    image_negative: negativePrompt,
+    image_prompt: imagePrompt,
     source: "fallback",
     theme,
-    video_negative: promptResult.negative_prompt,
-    video_prompt: `${promptResult.main_prompt} Camera language: ${context.effective_request.base.style.camera_language}.`,
-  };
-}
-
-function buildSyntheticRequest(desc_ko: string, theme: string | null): EngineRequest {
-  return {
-    version: "0.1",
-    intent: {
-      duration_sec: 5,
-      emotion: "wonder",
-      goal: "generate media asset",
-      platform: "youtube_shorts",
-      subject: desc_ko,
-      theme: theme ?? "default_theme",
-      topic: desc_ko,
-    },
-    constraints: {
-      budget_tier: "low",
-      content_policy_safe: true,
-      language: "ko",
-      quality_tier: "balanced",
-      visual_consistency_required: true,
-    },
-    style: {
-      camera_language: "simple_push_in",
-      caption_style: "cinematic_minimal",
-      hook_type: "curiosity",
-      pacing_profile: "gentle",
-    },
-    backend: {
-      allow_fallback: true,
-      preferred_engine: "local",
-    },
-    output: {
-      type: "video_prompt",
-    },
+    video_negative: negativePrompt,
+    video_prompt: videoPrompt,
   };
 }
 

@@ -41,13 +41,28 @@ test("inspectComfyUIMediaStack recognizes local SkyReels and VibeVoice assets", 
     writeFixture(path.join(comfyuiRoot, "models", "vibevoice", "VibeVoice-Realtime-0.5B", "config.json")),
   ]);
 
+  const edgeTtsBackend: BackendStatus = {
+    available: true,
+    detectedPath: "C:/Python312/Scripts/edge-tts.exe",
+    installGuideUrl: "https://github.com/rany2/edge-tts",
+    name: "edge-tts",
+    source: "path",
+    version: "6.1.9",
+  };
+
   const result = await inspectComfyUIMediaStack([
     comfyuiBackend(comfyuiRoot),
+    edgeTtsBackend,
   ]);
 
-  assert.equal(result.ready, true);
-  assert.equal(result.capabilities.length, 5);
-  assert.ok(result.capabilities.every((capability) => capability.ready));
+  const advancedCapabilities = result.capabilities.filter(
+    (c) => ["skyreels_ref2v", "skyreels_talking", "skyreels_extend", "vibevoice_drama", "vibevoice_realtime"].includes(c.id),
+  );
+  assert.equal(advancedCapabilities.length, 5);
+  assert.ok(advancedCapabilities.every((capability) => capability.ready));
+
+  const ttsCapability = result.capabilities.find((c) => c.id === "tts");
+  assert.ok(ttsCapability?.ready);
 });
 
 function comfyuiBackend(detectedPath: string): BackendStatus {

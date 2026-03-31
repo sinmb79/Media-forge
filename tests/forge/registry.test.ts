@@ -21,6 +21,11 @@ const TEST_CATALOG: BackendPathCatalog = {
       version_args: ["--version"],
       install_guide_url: "https://www.python.org/downloads/",
     },
+    "edge-tts": {
+      executables: ["edge-tts"],
+      version_args: ["--version"],
+      install_guide_url: "https://github.com/rany2/edge-tts",
+    },
     ollama: {
       executables: ["ollama"],
       version_args: ["--version"],
@@ -52,12 +57,16 @@ test("detectBackends resolves configured paths and PATH executables", async () =
       switch (key) {
         case "where ffmpeg":
           return { exitCode: 0, stdout: "C:\\Tools\\ffmpeg.exe\r\n", stderr: "" };
+        case "where edge-tts":
+          return { exitCode: 0, stdout: "C:\\Python312\\Scripts\\edge-tts.exe\r\n", stderr: "" };
         case "where python":
           return { exitCode: 0, stdout: "C:\\Python312\\python.exe\r\n", stderr: "" };
         case "where ollama":
           return { exitCode: 0, stdout: "C:\\Ollama\\ollama.exe\r\n", stderr: "" };
         case "C:\\Tools\\ffmpeg.exe -version":
           return { exitCode: 0, stdout: "ffmpeg version 7.1-full_build\r\n", stderr: "" };
+        case "C:\\Python312\\Scripts\\edge-tts.exe --version":
+          return { exitCode: 0, stdout: "edge-tts 6.1.9\r\n", stderr: "" };
         case "C:\\Python312\\python.exe --version":
           return { exitCode: 0, stdout: "Python 3.12.8\r\n", stderr: "" };
         case "C:\\Ollama\\ollama.exe --version":
@@ -68,20 +77,22 @@ test("detectBackends resolves configured paths and PATH executables", async () =
     },
   });
 
-  assert.equal(statuses.length, 5);
+  assert.equal(statuses.length, 6);
   assert.deepEqual(
     statuses.map((status) => [status.name, status.available, status.source]),
     [
       ["comfyui", true, "config"],
       ["ffmpeg", true, "path"],
       ["python", true, "path"],
+      ["edge-tts", true, "path"],
       ["ollama", true, "path"],
       ["propainter", true, "config"],
     ],
   );
   assert.equal(statuses[1]?.version, "ffmpeg version 7.1-full_build");
   assert.equal(statuses[2]?.version, "Python 3.12.8");
-  assert.equal(statuses[3]?.version, "ollama version 0.6.0");
+  assert.equal(statuses[3]?.version, "edge-tts 6.1.9");
+  assert.equal(statuses[4]?.version, "ollama version 0.6.0");
 });
 
 test("detectBackends marks missing installations with guide URLs", async () => {

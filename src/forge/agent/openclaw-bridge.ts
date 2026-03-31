@@ -13,14 +13,21 @@ import { runSketchToImage } from "../image/sketch-to-image.js";
 import { runVideoFromImage } from "../video/from-image.js";
 import { runVideoFromText } from "../video/from-text.js";
 import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
-import { OllamaBackend } from "../../backends/ollama.js";
+import { resolveLLMClient } from "../../backends/resolve-llm-client.js";
 import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
+import { createCharacter, getCharacter, listCharacters } from "../character/manager.js";
+import { ingestScenario } from "../../scenario/ingest.js";
 
 export type OpenClawActionId =
+  | "character.create"
+  | "character.get"
+  | "character.list"
   | "doctor"
+  | "llm.generate"
   | "probe"
   | "paths.validate"
   | "prompt.build"
+  | "scenario.ingest"
   | "image.generate"
   | "image.sketch"
   | "video.from-image"
@@ -76,10 +83,15 @@ export interface StartedOpenClawBridgeServer {
 }
 
 const OPENCLAW_ACTIONS: OpenClawActionRecord[] = [
+  { expects_artifact: false, id: "character.create", label: "Create character" },
+  { expects_artifact: false, id: "character.get", label: "Get character" },
+  { expects_artifact: false, id: "character.list", label: "List characters" },
   { expects_artifact: false, id: "doctor", label: "Doctor" },
+  { expects_artifact: false, id: "llm.generate", label: "Generate text via LLM" },
   { expects_artifact: false, id: "probe", label: "Probe backends" },
   { expects_artifact: false, id: "paths.validate", label: "Validate paths" },
   { expects_artifact: false, id: "prompt.build", label: "Build prompt bundle" },
+  { expects_artifact: true, id: "scenario.ingest", label: "Ingest scenario" },
   { expects_artifact: true, id: "image.generate", label: "Generate image" },
   { expects_artifact: true, id: "image.sketch", label: "Sketch to image" },
   { expects_artifact: true, id: "video.from-image", label: "Image to video" },
@@ -271,12 +283,24 @@ async function invokeOpenClawAction(
     return (context.dependencies.validatePathsFn ?? validateForgePaths)(context.rootDir);
   }
 
+  if (action === "llm.generate") {
+    const prompt = readRequiredString(input, ["prompt", "text"], "prompt");
+    const systemPrompt = readOptionalString(input, ["system_prompt"]);
+    const model = readOptionalString(input, ["model"]);
+    const llmClient = await resolveLLMClient({ rootDir: context.rootDir });
+    const text = systemPrompt
+      ? await llmClient.generateWithSystemPrompt!(prompt, model, systemPrompt)
+      : await llmClient.generate(prompt, model);
+    return { text };
+  }
+
   if (action === "prompt.build") {
     const model = readOptionalString(input, ["model"]);
     const theme = readOptionalString(input, ["theme"]);
+    const llmClient = await resolveLLMClient({ rootDir: context.rootDir });
     return (context.dependencies.buildPromptBundleFn ?? buildForgePromptBundle)({
       desc_ko: readRequiredString(input, ["desc_ko", "desc", "prompt"], "desc_ko"),
-      ollamaClient: new OllamaBackend({ autoStart: true, rootDir: context.rootDir }),
+      ollamaClient: llmClient,
       ...(model ? { model } : {}),
       ...(theme ? { theme } : {}),
     });
@@ -341,6 +365,38 @@ async function invokeOpenClawAction(
       simulate: readBoolean(input, "simulate", false),
       ...(outputDir ? { outputDir } : {}),
       ...(theme ? { theme } : {}),
+    });
+  }
+
+  if (action === "character.create") {
+    const refImagesRaw = input.reference_images;
+    const refImages = Array.isArray(refImagesRaw)
+      ? refImagesRaw.filter((v): v is string => typeof v === "string")
+      : [];
+    return createCharacter({
+      name: readRequiredString(input, ["name"], "name"),
+      description: readOptionalString(input, ["description", "desc"]) ?? "",
+      reference_images: refImages ?? [],
+      type: (readOptionalString(input, ["type"]) ?? "realistic") as "realistic" | "anime" | "2d" | "custom",
+      rootDir: context.rootDir,
+    });
+  }
+
+  if (action === "character.list") {
+    return listCharacters({ rootDir: context.rootDir });
+  }
+
+  if (action === "character.get") {
+    const idOrName = readRequiredString(input, ["id", "name", "character_id"], "id");
+    return getCharacter({ idOrName, rootDir: context.rootDir });
+  }
+
+  if (action === "scenario.ingest") {
+    const scenarioPath = readRequiredString(input, ["scenarioPath", "scenario_path", "path"], "scenarioPath");
+    return ingestScenario({
+      scenarioPath,
+      rootDir: context.rootDir,
+      simulate: readBoolean(input, "simulate", false),
     });
   }
 

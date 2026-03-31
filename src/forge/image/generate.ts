@@ -1,10 +1,10 @@
 import * as path from "node:path";
 
 import { ComfyUIBackend } from "../../backends/comfyui.js";
-import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
+import { buildForgePromptBundle, type ForgePromptClient } from "../../prompt/forge-prompt-builder.js";
 import { createRequestId } from "../../shared/request-id.js";
 import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
-import { OllamaBackend } from "../../backends/ollama.js";
+import { resolveLLMClient } from "../../backends/resolve-llm-client.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
 
 export interface ImageGenerateOptions {
@@ -35,7 +35,7 @@ export async function runImageGenerate(
   options: ImageGenerateOptions,
   dependencies: {
     comfyClient?: ComfyUIBackend;
-    ollamaClient?: OllamaBackend;
+    ollamaClient?: ForgePromptClient;
   } = {},
 ): Promise<ImageGenerateResult> {
   const rootDir = resolveMediaForgeRoot(options.rootDir ?? process.cwd());
@@ -47,7 +47,7 @@ export async function runImageGenerate(
   });
   const promptBundle = await buildForgePromptBundle({
     desc_ko: options.prompt,
-    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
+    ollamaClient: dependencies.ollamaClient ?? await resolveLLMClient({ rootDir }),
     theme: options.theme,
   });
   const outputDir = path.resolve(rootDir, options.outputDir ?? "outputs");

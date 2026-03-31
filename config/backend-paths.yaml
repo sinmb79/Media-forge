@@ -52,6 +52,15 @@
       ],
       "install_guide_url": "https://ollama.com/download"
     },
+    "edge-tts": {
+      "executables": [
+        "edge-tts"
+      ],
+      "version_args": [
+        "--version"
+      ],
+      "install_guide_url": "https://github.com/rany2/edge-tts"
+    },
     "propainter": {
       "configured_paths": [
         "engines/propainter",

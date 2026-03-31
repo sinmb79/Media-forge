@@ -82,5 +82,5 @@ test("buildForgePromptBundle falls back to local prompt planning when Ollama is 
 
   assert.equal(bundle.source, "fallback");
   assert.match(bundle.image_prompt, /fairy_tale/i);
-  assert.match(bundle.video_prompt, /Scene:/);
+  assert.match(bundle.video_prompt, /cinematic/);
 });

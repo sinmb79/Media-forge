@@ -2,8 +2,8 @@ import * as path from "node:path";
 
 import { FFmpegBackend } from "../../backends/ffmpeg.js";
 import { ComfyUIBackend } from "../../backends/comfyui.js";
-import { OllamaBackend } from "../../backends/ollama.js";
-import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
+import { resolveLLMClient } from "../../backends/resolve-llm-client.js";
+import { buildForgePromptBundle, type ForgePromptClient } from "../../prompt/forge-prompt-builder.js";
 import { createRequestId } from "../../shared/request-id.js";
 import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "../config/load-json-config.js";
@@ -39,14 +39,14 @@ export async function runSkyReelsVideoExtend(
     comfyClient?: ComfyUIBackend;
     freeVramGb?: number | null;
     hardwareProfile?: HardwareProfile | null;
-    ollamaClient?: OllamaBackend;
+    ollamaClient?: ForgePromptClient;
   } = {},
 ): Promise<ForgeVideoResult> {
   const requestId = createRequestId(input);
   const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const promptBundle = await buildForgePromptBundle({
     desc_ko: input.desc_ko,
-    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
+    ollamaClient: dependencies.ollamaClient ?? await resolveLLMClient({ rootDir }),
     theme: input.theme,
   });
   const hardwareProfile = dependencies.hardwareProfile ?? await loadHardwareProfile(rootDir);
@@ -129,7 +129,7 @@ export async function runSessionVideoExtend(
     ffmpegBackend?: FFmpegBackend;
     freeVramGb?: number | null;
     hardwareProfile?: HardwareProfile | null;
-    ollamaClient?: OllamaBackend;
+    ollamaClient?: ForgePromptClient;
   } = {},
 ): Promise<{
   composed_output_path: string;

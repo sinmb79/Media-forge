@@ -15,6 +15,11 @@ export interface ForgeDefaultsConfig {
     auto_start?: boolean;
     default_port?: number;
   };
+  llm?: {
+    default_model?: string;
+    openclaw_url?: string;
+    provider?: "openclaw" | "ollama";
+  };
   ollama?: {
     default_model?: string;
     default_port?: number;
