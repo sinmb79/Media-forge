@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import { ProPainterBackend } from "../../backends/propainter.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 
 export interface RemoveObjectResult {
   backend: "propainter";
@@ -35,7 +36,7 @@ export async function runRemoveObject(
     };
   } = {},
 ): Promise<RemoveObjectResult> {
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const requestId = createRequestId({
     inputPath: input.inputPath,
     maskPath: input.maskPath,

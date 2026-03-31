@@ -1,4 +1,6 @@
 export type DashboardJobStatus = "queued" | "running" | "succeeded" | "failed";
+export type DashboardJobPhase = "execution" | "verification";
+export type DashboardResultKind = "non_file" | "file";
 
 export interface DashboardJobLogEntry {
   level: "info" | "error";
@@ -19,6 +21,25 @@ export interface DashboardJob {
   input: Record<string, unknown>;
   output: unknown;
   error: string | null;
+  phase: DashboardJobPhase;
+  summary: string;
+  details: string;
+  result_kind: DashboardResultKind;
+  expected_artifact: boolean;
+  artifact_path: string | null;
+  artifact_exists: boolean | null;
+  next_step: string | null;
+}
+
+export interface DashboardJobMetadataPatch {
+  artifact_exists?: boolean | null;
+  artifact_path?: string | null;
+  details?: string;
+  expected_artifact?: boolean;
+  next_step?: string | null;
+  phase?: DashboardJobPhase;
+  result_kind?: DashboardResultKind;
+  summary?: string;
 }
 
 export interface DashboardJobQueueEvent {
@@ -51,6 +72,14 @@ export class DashboardJobQueue {
       input: input.input ?? {},
       output: null,
       error: null,
+      phase: "execution",
+      summary: "Queued",
+      details: "Waiting to start.",
+      result_kind: "non_file",
+      expected_artifact: false,
+      artifact_path: null,
+      artifact_exists: null,
+      next_step: null,
     };
 
     this.jobs.set(job.id, job);
@@ -88,24 +117,36 @@ export class DashboardJobQueue {
     });
   }
 
-  succeed(jobId: string, output: unknown): DashboardJob {
+  updateMetadata(jobId: string, patch: DashboardJobMetadataPatch): DashboardJob {
+    return this.update(jobId, (job) => applyMetadataPatch(job, patch));
+  }
+
+  succeed(
+    jobId: string,
+    output: unknown,
+    metadata: DashboardJobMetadataPatch = {},
+  ): DashboardJob {
     return this.update(jobId, (job) => {
       job.status = "succeeded";
       job.output = output;
       job.error = null;
       job.finishedAt = new Date().toISOString();
       job.progress = 1;
-      return job;
+      return applyMetadataPatch(job, metadata);
     });
   }
 
-  fail(jobId: string, error: string): DashboardJob {
+  fail(
+    jobId: string,
+    error: string,
+    metadata: DashboardJobMetadataPatch = {},
+  ): DashboardJob {
     return this.update(jobId, (job) => {
       job.status = "failed";
       job.error = error;
       job.finishedAt = new Date().toISOString();
       job.progress = 1;
-      return job;
+      return applyMetadataPatch(job, metadata);
     });
   }
 
@@ -156,4 +197,21 @@ export class DashboardJobQueue {
       input: { ...job.input },
     };
   }
+}
+
+function applyMetadataPatch(
+  job: DashboardJob,
+  patch: DashboardJobMetadataPatch,
+): DashboardJob {
+  return {
+    ...job,
+    ...(patch.phase !== undefined ? { phase: patch.phase } : {}),
+    ...(patch.summary !== undefined ? { summary: patch.summary } : {}),
+    ...(patch.details !== undefined ? { details: patch.details } : {}),
+    ...(patch.result_kind !== undefined ? { result_kind: patch.result_kind } : {}),
+    ...(patch.expected_artifact !== undefined ? { expected_artifact: patch.expected_artifact } : {}),
+    ...(patch.artifact_path !== undefined ? { artifact_path: patch.artifact_path } : {}),
+    ...(patch.artifact_exists !== undefined ? { artifact_exists: patch.artifact_exists } : {}),
+    ...(patch.next_step !== undefined ? { next_step: patch.next_step } : {}),
+  };
 }

@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
 import { runRemoveObject } from "./remove-object.js";
 
@@ -62,7 +63,7 @@ export async function runRemoveWatermark(
     };
   }
 
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const requestId = createRequestId({
     inputPath: input.inputPath,
     operation: "remove-watermark",
@@ -92,7 +93,7 @@ export async function runRemoveWatermark(
     },
     rootDir,
   );
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+    const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];
@@ -117,7 +118,7 @@ function isImagePath(filePath: string): boolean {
 }
 
 function resolveAutoMaskPath(inputPath: string, rootDir: string | undefined): string {
-  const baseRoot = rootDir ?? process.cwd();
+  const baseRoot = resolveMediaForgeRoot(rootDir ?? process.cwd());
   return path.resolve(
     baseRoot,
     "outputs",

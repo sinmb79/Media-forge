@@ -6,6 +6,18 @@ import { DashboardJobQueue } from "../../src/dashboard/services/dashboard-job-qu
 
 test("dashboard server serves the shell, health, outputs, and action acceptance", async () => {
   const queue = new DashboardJobQueue();
+  queue.createJob({
+    id: "existing-job",
+    kind: "prompt-build",
+    label: "Prompt Build",
+  });
+  queue.updateMetadata("existing-job", {
+    details: "Prompt result verified.",
+    expected_artifact: false,
+    phase: "verification",
+    result_kind: "non_file",
+    summary: "Generated and verified",
+  });
   const started = await startDashboardServer({
     actionService: {
       enqueueAction(action: string) {
@@ -120,6 +132,74 @@ test("dashboard server serves the shell, health, outputs, and action acceptance"
     assert.equal(actionResponse.status, 202);
     assert.equal(actionPayload.action, "prompt-build");
     assert.equal(actionPayload.job_id, "job-1");
+
+    const jobsResponse = await fetch(`${started.url}/api/jobs`);
+    const jobsPayload = await jobsResponse.json() as {
+      items?: Array<{
+        expected_artifact?: boolean;
+        phase?: string;
+        result_kind?: string;
+        summary?: string;
+      }>;
+    };
+    assert.equal(jobsResponse.status, 200);
+    assert.equal(Array.isArray(jobsPayload.items), true);
+    assert.equal(jobsPayload.items?.[0]?.phase, "verification");
+    assert.equal(jobsPayload.items?.[0]?.result_kind, "non_file");
+    assert.equal(jobsPayload.items?.[0]?.expected_artifact, false);
+  } finally {
+    await started.close();
+  }
+});
+
+test("dashboard router returns 422 when action preflight is blocked", async () => {
+  const queue = new DashboardJobQueue();
+  const started = await startDashboardServer({
+    actionService: {
+      async enqueueAction() {
+        return {
+          action: "video-from-text",
+          status: "blocked",
+          reason: "ComfyUI is required.",
+          missing_backends: ["comfyui"],
+          missing_inputs: [],
+          next_steps: ["Install ComfyUI and retry."],
+        };
+      },
+    } as never,
+    healthService: {
+      async getSnapshot() {
+        throw new Error("Not used");
+      },
+    } as never,
+    jobQueue: queue,
+    outputStore: {
+      getOutputsRoot() {
+        return `${process.cwd()}\\outputs`;
+      },
+      async listRecent() {
+        return [];
+      },
+    } as never,
+    port: 0,
+  });
+
+  try {
+    const response = await fetch(`${started.url}/api/actions/video-from-text`, {
+      method: "POST",
+      body: JSON.stringify({ desc: "장면 설명" }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const payload = await response.json() as {
+      status?: string;
+      missing_backends?: string[];
+    };
+
+    assert.equal(response.status, 422);
+    assert.equal(payload.status, "blocked");
+    assert.deepEqual(payload.missing_backends, ["comfyui"]);
   } finally {
     await started.close();
   }

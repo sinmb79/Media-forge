@@ -1,0 +1,35 @@
+[
+  {
+    "id": "char-princess",
+    "name": "Princess",
+    "name_ko": "공주",
+    "category": "characters",
+    "type": "character_profile",
+    "is_official": true,
+    "data": {
+      "name": "Princess",
+      "type": "anime",
+      "reference_images": [
+        "assets/characters/princess-ref.png"
+      ],
+      "voice_preset": "ko-KR-SunHiNeural",
+      "description": "A fairy tale lead with elegant costume details."
+    }
+  },
+  {
+    "id": "char-streamer",
+    "name": "Streamer Host",
+    "name_ko": "스트리머",
+    "category": "characters",
+    "type": "character_profile",
+    "is_official": true,
+    "data": {
+      "name": "Streamer Host",
+      "type": "realistic",
+      "reference_images": [
+        "assets/characters/streamer-ref.png"
+      ],
+      "description": "A modern presenter preset for social clips."
+    }
+  }
+]

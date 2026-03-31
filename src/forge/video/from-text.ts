@@ -4,18 +4,26 @@ import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { OllamaBackend } from "../../backends/ollama.js";
 import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "../config/load-json-config.js";
 import type { HardwareProfile } from "../contracts.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
 import { buildVideoGenerationPlan, type ForgeVideoQuality } from "./build-video-generation-plan.js";
+import type { ForgeVideoResult } from "./from-image.js";
 
 export async function runVideoFromText(
   input: {
+    aspect_ratio?: "9:16" | "1:1" | "16:9";
     desc_ko: string;
+    duration_sec?: number;
+    model?: "wan22" | "ltx2";
     outputDir?: string;
     quality: ForgeVideoQuality;
+    resolution?: "720p" | "1080p";
     rootDir?: string;
     simulate?: boolean;
+    sound_sync?: boolean;
+    seed?: number;
     theme?: string | null;
   },
   dependencies: {
@@ -24,18 +32,12 @@ export async function runVideoFromText(
     hardwareProfile?: HardwareProfile | null;
     ollamaClient?: OllamaBackend;
   } = {},
-): Promise<{
-  output_path: string;
-  prompt_bundle: Awaited<ReturnType<typeof buildForgePromptBundle>>;
-  request_id: string;
-  status: "simulated" | "completed";
-  workflow_id: string;
-}> {
+): Promise<ForgeVideoResult> {
   const requestId = createRequestId(input);
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const promptBundle = await buildForgePromptBundle({
     desc_ko: input.desc_ko,
-    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ rootDir }),
+    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
     theme: input.theme,
   });
   const hardwareProfile = dependencies.hardwareProfile ?? await loadHardwareProfile(rootDir);
@@ -44,7 +46,7 @@ export async function runVideoFromText(
     freeVramGb: dependencies.freeVramGb ?? hardwareProfile?.gpu?.vram_gb ?? null,
     hardwareProfile,
     mode: "from-text",
-    model: "wan22",
+    model: input.model ?? "wan22",
     quality: input.quality,
   });
   const outputPath = path.resolve(rootDir, input.outputDir ?? "outputs", `${requestId}.mp4`);
@@ -60,11 +62,16 @@ export async function runVideoFromText(
   }
 
   const workflow = await loadWorkflowTemplate(plan.workflow_id, {
+    aspect_ratio: input.aspect_ratio ?? "9:16",
+    duration_sec: input.duration_sec ?? 5,
     negative_prompt: promptBundle.video_negative,
     output_path: outputPath,
     prompt: promptBundle.video_prompt,
+    resolution: input.resolution ?? "1080p",
+    seed: input.seed ?? -1,
+    sound_sync: input.sound_sync ?? false,
   }, rootDir);
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];

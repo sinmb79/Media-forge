@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
 
 export interface UpscaleMediaResult {
@@ -24,7 +25,7 @@ export async function runUpscaleMedia(
     comfyClient?: ComfyUIBackend;
   } = {},
 ): Promise<UpscaleMediaResult> {
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const requestId = createRequestId({
     inputPath: input.inputPath,
     operation: "upscale",
@@ -56,7 +57,7 @@ export async function runUpscaleMedia(
     },
     rootDir,
   );
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];

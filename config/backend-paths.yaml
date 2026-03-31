@@ -2,6 +2,7 @@
   "backends": {
     "comfyui": {
       "configured_paths": [
+        "engines/comfyui",
         "%USERPROFILE%/ComfyUI",
         "%USERPROFILE%/workspace/ComfyUI",
         "C:/ComfyUI"
@@ -10,6 +11,11 @@
       "install_guide_url": "https://github.com/comfyanonymous/ComfyUI"
     },
     "ffmpeg": {
+      "configured_paths": [
+        "engines/ffmpeg/bin/ffmpeg.exe",
+        "%USERPROFILE%/ffmpeg/bin/ffmpeg.exe",
+        "C:/ffmpeg/bin/ffmpeg.exe"
+      ],
       "executables": [
         "ffmpeg"
       ],
@@ -19,6 +25,9 @@
       "install_guide_url": "https://ffmpeg.org/download.html"
     },
     "python": {
+      "configured_paths": [
+        "engines/python/python.exe"
+      ],
       "executables": [
         "python",
         "python3",
@@ -30,6 +39,11 @@
       "install_guide_url": "https://www.python.org/downloads/"
     },
     "ollama": {
+      "configured_paths": [
+        "engines/ollama/ollama.exe",
+        "%LOCALAPPDATA%/Programs/Ollama/ollama.exe",
+        "C:/Program Files/Ollama/ollama.exe"
+      ],
       "executables": [
         "ollama"
       ],
@@ -40,6 +54,7 @@
     },
     "propainter": {
       "configured_paths": [
+        "engines/propainter",
         "%USERPROFILE%/ProPainter",
         "%USERPROFILE%/workspace/ProPainter"
       ],

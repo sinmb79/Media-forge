@@ -29,6 +29,18 @@ export function renderForgeDoctorOutput(result: ForgeDoctorResult, json: boolean
     `- Disk (${result.system.disk.mount}): ${formatDisk(result)}`,
   );
 
+  lines.push(
+    "",
+    "ComfyUI media stack:",
+    `- Root: ${result.media_stack.comfyui_root ?? "not detected"}`,
+    `- Ready: ${result.media_stack.ready ? "yes" : "no"}`,
+  );
+
+  for (const capability of result.media_stack.capabilities) {
+    lines.push(`- ${capability.label}: ${capability.ready ? "ready" : "blocked"}`);
+    lines.push(`  ${capability.summary}`);
+  }
+
   if (result.system.configured_hardware?.gpu?.name || result.system.configured_hardware?.cpu?.name) {
     lines.push(
       `- Configured profile: ${result.system.configured_hardware.gpu?.name ?? "unknown GPU"} / ${result.system.configured_hardware.cpu?.name ?? "unknown CPU"}`,

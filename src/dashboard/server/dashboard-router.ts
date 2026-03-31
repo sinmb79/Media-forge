@@ -82,8 +82,14 @@ export function createDashboardRouter(
       if (method === "POST" && pathname.startsWith("/api/actions/")) {
         const action = pathname.replace("/api/actions/", "") as DashboardActionName;
         const payload = await readJsonBody(request);
-        const accepted = dependencies.actionService.enqueueAction(action, payload);
-        sendJson(response, 202, accepted);
+        const actionResult = await dependencies.actionService.enqueueAction(action, payload);
+
+        if (actionResult.status === "blocked") {
+          sendJson(response, 422, actionResult);
+          return;
+        }
+
+        sendJson(response, 202, actionResult);
         return;
       }
 

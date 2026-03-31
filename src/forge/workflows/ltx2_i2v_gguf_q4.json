@@ -10,7 +10,11 @@
     "inputs": {
       "prompt": "{{prompt}}",
       "negative_prompt": "{{negative_prompt}}",
-      "quantization": "q4"
+      "quantization": "q4",
+      "duration_sec": "{{duration_sec}}",
+      "resolution": "{{resolution}}",
+      "seed": "{{seed}}",
+      "sound_sync": "{{sound_sync}}"
     }
   },
   "3": {

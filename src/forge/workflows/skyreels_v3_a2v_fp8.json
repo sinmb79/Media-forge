@@ -1,0 +1,27 @@
+{
+  "1": {
+    "class_type": "SkyReelsA2VLoader",
+    "inputs": {
+      "audio_model": "MelBandRoformer_fp16.safetensors",
+      "model": "Wan21-SkyReelsV3-A2V_fp8_scaled_mixed.safetensors",
+      "portrait": "{{portrait_path}}",
+      "text_encoder": "umt5-xxl-enc-fp8_e4m3fn.safetensors",
+      "vae": "Wan2_1_VAE_bf16.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "SkyReelsA2VSampler",
+    "inputs": {
+      "audio_path": "{{audio_path}}",
+      "duration_sec": "{{duration_sec}}",
+      "negative_prompt": "{{negative_prompt}}",
+      "prompt": "{{prompt}}"
+    }
+  },
+  "3": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

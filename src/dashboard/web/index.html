@@ -255,6 +255,18 @@
               <h2>Results and details</h2>
             </div>
           </div>
+          <section id="verification-summary" class="verification-summary">
+            <div class="verification-head">
+              <span id="verification-badge" class="status-badge status-idle">Idle</span>
+              <div>
+                <h3 id="verification-title">Nothing selected</h3>
+                <p id="verification-description" class="verification-description">
+                  Run an action or select a job from the queue to inspect its result.
+                </p>
+              </div>
+            </div>
+            <div id="verification-facts" class="verification-facts"></div>
+          </section>
           <div id="preview-surface" class="preview-surface">
             <div class="empty-preview">
               <p>No output selected yet.</p>
@@ -262,6 +274,12 @@
             </div>
           </div>
           <div id="preview-meta" class="preview-meta"></div>
+          <div class="panel-header inspector-header">
+            <div>
+              <p class="eyebrow">Result Inspector</p>
+              <h2>Structured result</h2>
+            </div>
+          </div>
           <pre id="result-log" class="result-log">Waiting for action output...</pre>
         </section>
 

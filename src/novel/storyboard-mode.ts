@@ -59,12 +59,40 @@ function parseStoryboardDefinition(raw: string): StoryboardDefinition | null {
     const parsed = JSON.parse(normalized) as StoryboardDefinition;
 
     if (
-      Array.isArray(parsed.scenes)
+      (Array.isArray(parsed.scenes) || Array.isArray(parsed.shots))
       && typeof parsed.transition === "string"
-      && typeof parsed.output?.resolution === "string"
-      && typeof parsed.output?.format === "string"
     ) {
-      return parsed;
+      return Array.isArray(parsed.shots)
+        ? {
+          ...parsed,
+          output: parsed.output ?? {
+            format: "mp4",
+            resolution: parsed.resolution === "1080p" ? "1080p" : "720p",
+          },
+          resolution: parsed.resolution === "1080p" ? "1080p" : "720p",
+          scenes: parsed.scenes ?? parsed.shots.map((shot) => ({
+            desc: shot.prompt_ko,
+            duration: shot.duration_sec,
+            image: shot.image ?? "",
+          })),
+        }
+        : {
+          ...parsed,
+          aspect_ratio: "16:9",
+          model: "wan22-q8",
+          output: parsed.output ?? {
+            format: "mp4",
+            resolution: "720p",
+          },
+          resolution: parsed.output?.resolution === "1080p" ? "1080p" : "720p",
+          shots: parsed.scenes.map((scene, index) => ({
+            duration_sec: scene.duration,
+            id: index + 1,
+            image: scene.image,
+            prompt_ko: scene.desc,
+          })),
+          sound_sync: false,
+        } as StoryboardDefinition;
     }
   } catch {
     return null;
@@ -88,11 +116,21 @@ function buildFallbackStoryboard(
   });
 
   return {
+    aspect_ratio: "16:9",
+    model: "wan22-q8",
     output: {
       format: "mp4",
       resolution: "720p",
     },
+    resolution: "720p",
     scenes,
+    shots: scenes.map((scene, index) => ({
+      duration_sec: scene.duration,
+      id: index + 1,
+      image: scene.image,
+      prompt_ko: scene.desc,
+    })),
+    sound_sync: false,
     transition: "ai",
   };
 }

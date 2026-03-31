@@ -2,6 +2,10 @@ import { access, readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 
+import {
+  resolveMediaForgeConfigFile,
+  resolveMediaForgeRoot,
+} from "../shared/resolve-mediaforge-root.js";
 import type {
   BackendCatalogEntry,
   BackendName,
@@ -25,13 +29,13 @@ const DEFAULT_DEPENDENCIES: RegistryDependencies = {
 };
 
 export async function loadBackendPathCatalog(rootDir: string): Promise<BackendPathCatalog> {
-  const filePath = path.resolve(rootDir, "config", "backend-paths.yaml");
+  const filePath = resolveMediaForgeConfigFile("backend-paths.yaml", rootDir);
   const raw = await readFile(filePath, "utf8");
   return JSON.parse(raw) as BackendPathCatalog;
 }
 
 export async function inspectBackends(
-  rootDir: string = process.cwd(),
+  rootDir: string = resolveMediaForgeRoot(),
   dependencies?: Partial<RegistryDependencies>,
 ): Promise<BackendStatus[]> {
   const catalog = await loadBackendPathCatalog(rootDir);

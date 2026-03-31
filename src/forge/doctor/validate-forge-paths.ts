@@ -1,6 +1,10 @@
 import { access } from "node:fs/promises";
 import * as path from "node:path";
 
+import {
+  resolveMediaForgeConfigFile,
+  resolveMediaForgeRoot,
+} from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "../config/load-json-config.js";
 import type {
   ForgeConfigValidationFile,
@@ -13,21 +17,22 @@ interface ForgeDefaultsConfig {
   forge?: Record<string, unknown>;
 }
 
-export async function validateForgePaths(rootDir: string = process.cwd()): Promise<ForgePathsValidationResult> {
+export async function validateForgePaths(rootDir: string = resolveMediaForgeRoot()): Promise<ForgePathsValidationResult> {
+  const workspaceRoot = resolveMediaForgeRoot(rootDir);
   const files = await Promise.all([
     validateConfigFile<BackendPathCatalog>({
       name: "backend-paths",
-      filePath: path.resolve(rootDir, "config", "backend-paths.yaml"),
+      filePath: resolveMediaForgeConfigFile("backend-paths.yaml", workspaceRoot),
       validate: (value) => typeof value === "object" && value !== null && typeof value.backends === "object",
     }),
     validateConfigFile<HardwareProfile>({
       name: "hardware-profile",
-      filePath: path.resolve(rootDir, "config", "hardware-profile.yaml"),
+      filePath: path.resolve(workspaceRoot, "config", "hardware-profile.yaml"),
       validate: (value) => typeof value === "object" && value !== null,
     }),
     validateConfigFile<ForgeDefaultsConfig>({
       name: "defaults",
-      filePath: path.resolve(rootDir, "config", "defaults.yaml"),
+      filePath: resolveMediaForgeConfigFile("defaults.yaml", workspaceRoot),
       validate: (value) => typeof value === "object" && value !== null && typeof value.forge === "object",
     }),
   ]);

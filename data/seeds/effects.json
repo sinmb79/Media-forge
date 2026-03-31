@@ -1,0 +1,26 @@
+[
+  {
+    "id": "fx-lightning",
+    "name": "Lightning",
+    "name_ko": "번개",
+    "category": "effects",
+    "type": "visual_template",
+    "is_official": true,
+    "data": {
+      "template": "effects/lightning.html",
+      "blend": "screen"
+    }
+  },
+  {
+    "id": "fx-petals",
+    "name": "Petals",
+    "name_ko": "꽃잎",
+    "category": "effects",
+    "type": "visual_template",
+    "is_official": true,
+    "data": {
+      "template": "effects/petals.html",
+      "blend": "overlay"
+    }
+  }
+]

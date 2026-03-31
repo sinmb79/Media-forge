@@ -1,5 +1,6 @@
 import type { BackendStatus } from "../backends/types.js";
 import type { BackendName } from "../backends/types.js";
+import type { ForgeComfyUIMediaStackStatus } from "./doctor/inspect-comfyui-media-stack.js";
 
 export interface HardwareProfile {
   gpu?: {
@@ -46,6 +47,7 @@ export interface ForgeDoctorResult {
   schema_version: string;
   status: "ok" | "warning" | "error";
   backends: BackendStatus[];
+  media_stack: ForgeComfyUIMediaStackStatus;
   system: ForgeDoctorSystemSnapshot;
   warnings: string[];
 }

@@ -1,6 +1,7 @@
 import * as path from "node:path";
 
 import { FFmpegBackend } from "../../backends/ffmpeg.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 
 export async function addBackgroundMusicToVideo(
   input: {
@@ -20,7 +21,7 @@ export async function addBackgroundMusicToVideo(
 }> {
   const ffmpeg = dependencies.ffmpeg ?? new FFmpegBackend();
   const outputPath = input.outputPath ?? path.resolve(
-    process.cwd(),
+    resolveMediaForgeRoot(),
     "outputs",
     `${path.basename(input.videoPath, path.extname(input.videoPath))}-add-bgm${path.extname(input.videoPath) || ".mp4"}`,
   );

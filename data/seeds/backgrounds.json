@@ -1,0 +1,57 @@
+[
+  {
+    "id": "bg-forest-morning",
+    "name": "Forest Morning",
+    "name_ko": "숲의 아침",
+    "category": "backgrounds",
+    "type": "prompt_preset",
+    "is_official": true,
+    "data": {
+      "prompt": "sunlit forest path, cinematic mist, morning glow"
+    }
+  },
+  {
+    "id": "bg-lakeside-magic",
+    "name": "Magic Lakeside",
+    "name_ko": "마법의 호수",
+    "category": "backgrounds",
+    "type": "prompt_preset",
+    "is_official": true,
+    "data": {
+      "prompt": "enchanted lakeside, blue reflections, fairy tale atmosphere"
+    }
+  },
+  {
+    "id": "bg-cyber-city",
+    "name": "Cyber City",
+    "name_ko": "사이버 도시",
+    "category": "backgrounds",
+    "type": "prompt_preset",
+    "is_official": true,
+    "data": {
+      "prompt": "rainy cyberpunk avenue, neon reflections, cinematic depth"
+    }
+  },
+  {
+    "id": "bg-japanese-cafe",
+    "name": "Japanese Cafe",
+    "name_ko": "일본식 카페",
+    "category": "backgrounds",
+    "type": "prompt_preset",
+    "is_official": true,
+    "data": {
+      "prompt": "quiet japanese cafe interior, warm lantern light, clean framing"
+    }
+  },
+  {
+    "id": "bg-living-room",
+    "name": "Living Room",
+    "name_ko": "거실",
+    "category": "backgrounds",
+    "type": "prompt_preset",
+    "is_official": true,
+    "data": {
+      "prompt": "bright modern living room, daylight, editorial composition"
+    }
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "1": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "{{positive_prompt}}"
+    }
+  },
+  "2": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "{{negative_prompt}}"
+    }
+  },
+  "3": {
+    "class_type": "KSampler",
+    "inputs": {
+      "steps": "{{steps}}",
+      "cfg": "{{cfg_scale}}",
+      "seed": "{{seed}}"
+    }
+  },
+  "4": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "motion-slow-push-in",
+    "name": "Slow Push In",
+    "name_ko": "슬로우 푸시인",
+    "category": "motions",
+    "type": "motion_preset",
+    "is_official": true,
+    "data": {
+      "action": "slow_push_in",
+      "prompt": "camera slowly pushes forward, shallow depth of field"
+    }
+  },
+  {
+    "id": "motion-orbital",
+    "name": "Orbital",
+    "name_ko": "오비탈",
+    "category": "motions",
+    "type": "motion_preset",
+    "is_official": true,
+    "data": {
+      "action": "orbital",
+      "prompt": "camera orbits clockwise around subject"
+    }
+  }
+]

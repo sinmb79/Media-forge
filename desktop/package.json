@@ -1,0 +1,21 @@
+{
+  "name": "mediaforge-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "author": "22B Labs",
+  "description": "Electron shell for the local-first MediaForge runtime.",
+  "type": "module",
+  "main": "dist/desktop/main/index.js",
+  "scripts": {
+    "prepare:dashboard": "npm --prefix ../dashboard run build",
+    "build": "npm run prepare:dashboard && tsc -p tsconfig.json",
+    "dev": "npm run build && npx electron .",
+    "dist": "npm run build && npx electron-builder -c electron-builder.yml --win nsis"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8",
+    "typescript": "^5.9.2"
+  }
+}

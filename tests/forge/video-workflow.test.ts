@@ -54,3 +54,51 @@ test("buildVideoGenerationPlan uses text-to-video workflow for from-text mode", 
   assert.equal(plan.workflow_id, "wan22_t2v_gguf");
   assert.equal(plan.assets.image, undefined);
 });
+
+test("buildVideoGenerationPlan selects the SkyReels Ref2V workflow for reference video tasks", async () => {
+  const plan = await buildVideoGenerationPlan({
+    desc_ko: "영웅이 절벽 끝에서 석양을 바라본다",
+    freeVramGb: 14,
+    hardwareProfile: {
+      gpu: { name: "RTX 4080 Super", vram_gb: 16 },
+    },
+    imagePath: "characters/hero-front.png,characters/hero-side.png",
+    mode: "ref2v",
+    model: "skyreels-ref2v",
+    quality: "production",
+  });
+
+  assert.equal(plan.workflow_id, "skyreels_v3_ref2v_fp8");
+});
+
+test("buildVideoGenerationPlan selects the SkyReels A2V workflow for talking avatar tasks", async () => {
+  const plan = await buildVideoGenerationPlan({
+    desc_ko: "자신감 있는 표정, 정면 샷",
+    freeVramGb: 14,
+    hardwareProfile: {
+      gpu: { name: "RTX 4080 Super", vram_gb: 16 },
+    },
+    imagePath: "characters/hero-portrait.png",
+    mode: "talking",
+    model: "skyreels-a2v",
+    quality: "production",
+  });
+
+  assert.equal(plan.workflow_id, "skyreels_v3_a2v_fp8");
+});
+
+test("buildVideoGenerationPlan selects the SkyReels V2V workflow for extension tasks", async () => {
+  const plan = await buildVideoGenerationPlan({
+    desc_ko: "카메라가 천천히 뒤로 빠진다",
+    freeVramGb: 14,
+    hardwareProfile: {
+      gpu: { name: "RTX 4080 Super", vram_gb: 16 },
+    },
+    imagePath: "clips/scene_03.mp4",
+    mode: "extend",
+    model: "skyreels-v2v",
+    quality: "production",
+  });
+
+  assert.equal(plan.workflow_id, "skyreels_v3_v2v_fp8");
+});

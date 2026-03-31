@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediaForge Loading</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(0, 255, 136, 0.18), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(82, 182, 255, 0.16), transparent 28%),
+        #07070b;
+      color: #f5f7fb;
+    }
+    body {
+      display: grid;
+      place-items: center;
+    }
+    .shell {
+      width: 360px;
+      padding: 28px;
+      border-radius: 28px;
+      background: rgba(12, 13, 20, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+    }
+    p {
+      margin: 0 0 22px;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.5;
+    }
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .bar::after {
+      content: "";
+      display: block;
+      width: 42%;
+      height: 100%;
+      background: linear-gradient(90deg, #00ff88, #52b6ff);
+      animation: progress 1.5s ease-in-out infinite;
+    }
+    @keyframes progress {
+      0% { transform: translateX(-110%); }
+      100% { transform: translateX(320%); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <h1>MediaForge</h1>
+    <p>Preparing the local runtime, dashboard, and AI backends.</p>
+    <div class="bar"></div>
+  </main>
+</body>
+</html>

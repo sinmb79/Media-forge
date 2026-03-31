@@ -1,6 +1,7 @@
 import * as path from "node:path";
 
 import { FFmpegBackend } from "../../backends/ffmpeg.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 
 export async function separateMediaAudio(
   input: {
@@ -19,7 +20,7 @@ export async function separateMediaAudio(
 }> {
   const ffmpeg = dependencies.ffmpeg ?? new FFmpegBackend();
   const outputPath = input.outputPath ?? path.resolve(
-    process.cwd(),
+    resolveMediaForgeRoot(),
     "outputs",
     `${path.basename(input.inputPath, path.extname(input.inputPath))}-separate${path.extname(input.inputPath) || ".mp4"}`,
   );

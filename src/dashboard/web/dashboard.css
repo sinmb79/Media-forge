@@ -10,6 +10,8 @@
   --accent-soft: rgba(245, 143, 108, 0.18);
   --good: #7fe1a8;
   --warn: #ffd079;
+  --bad: #ff98a3;
+  --info: #79a8ff;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
   --radius: 24px;
   --font-display: "Segoe UI Variable Display", "Aptos Display", "Trebuchet MS", sans-serif;
@@ -305,6 +307,97 @@ h2 {
   min-height: 720px;
 }
 
+.verification-summary {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.verification-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-idle,
+.status-queued {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.status-running {
+  background: rgba(121, 168, 255, 0.16);
+  color: #c9dcff;
+}
+
+.status-succeeded {
+  background: rgba(127, 225, 168, 0.16);
+  color: #c8f5d9;
+}
+
+.status-failed,
+.status-blocked {
+  background: rgba(255, 152, 163, 0.14);
+  color: #ffd4da;
+}
+
+.verification-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.verification-description {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.45;
+}
+
+.verification-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.fact-card {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fact-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+}
+
+.fact-value {
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
 .preview-surface {
   display: grid;
   place-items: center;
@@ -343,6 +436,10 @@ h2 {
   color: var(--muted);
 }
 
+.inspector-header {
+  margin-bottom: 12px;
+}
+
 .result-log {
   min-height: 160px;
   padding: 16px;
@@ -351,6 +448,7 @@ h2 {
   border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: auto;
   color: #dce1ef;
+  line-height: 1.45;
 }
 
 .queue-list {
@@ -371,6 +469,43 @@ h2 {
 .timeline-item h3 {
   margin: 0 0 8px;
   font-size: 0.98rem;
+}
+
+.queue-item {
+  cursor: pointer;
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.queue-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(245, 143, 108, 0.24);
+}
+
+.queue-item.active {
+  border-color: rgba(245, 143, 108, 0.52);
+  box-shadow: inset 0 0 0 1px rgba(245, 143, 108, 0.35);
+  background: rgba(245, 143, 108, 0.07);
+}
+
+.queue-item-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.queue-heading {
+  min-width: 0;
+}
+
+.queue-heading h3 {
+  margin-bottom: 6px;
+}
+
+.queue-summary {
+  margin-top: 12px;
+  font-size: 0.94rem;
+  font-weight: 600;
 }
 
 .job-meta,
@@ -431,6 +566,11 @@ h2 {
 
   .preview-panel {
     min-height: auto;
+  }
+
+  .verification-head,
+  .queue-item-header {
+    flex-direction: column;
   }
 }
 

@@ -1,4 +1,4 @@
-import { writeFile, mkdir } from "node:fs/promises";
+import { access, writeFile, mkdir } from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
 
@@ -21,11 +21,17 @@ export interface FFmpegBackendOptions {
   execFileFn?: ExecFileLike;
   executablePath?: string;
   ffprobePath?: string;
+  resolveExecutablePaths?: () => Promise<{
+    ffmpegPath?: string;
+    ffprobePath?: string;
+  }>;
+  rootDir?: string;
 }
 
 export class FFmpegBackend implements IBackend {
   readonly name = "ffmpeg" as const;
   private readonly options: FFmpegBackendOptions;
+  private resolvedPathsPromise?: Promise<{ ffmpegPath: string; ffprobePath: string }>;
 
   constructor(options: FFmpegBackendOptions = {}) {
     this.options = options;
@@ -114,8 +120,9 @@ export class FFmpegBackend implements IBackend {
   }
 
   async getMediaInfo(input: string): Promise<MediaInfo> {
+    const paths = await this.resolveExecutablePaths();
     const result = await (this.options.execFileFn ?? defaultExecFile)(
-      this.options.ffprobePath ?? "ffprobe",
+      paths.ffprobePath,
       ["-v", "error", "-show_streams", "-show_format", "-of", "json", input],
     );
     const parsed = JSON.parse(result.stdout) as {
@@ -141,17 +148,49 @@ export class FFmpegBackend implements IBackend {
   }
 
   private async run(args: string[], cwd?: string): Promise<BackendExecutionResult> {
+    const paths = await this.resolveExecutablePaths();
     return (this.options.execFileFn ?? defaultExecFile)(
-      this.options.executablePath ?? "ffmpeg",
+      paths.ffmpegPath,
       args,
       cwd ? { cwd } : {},
     );
+  }
+
+  private async resolveExecutablePaths(): Promise<{ ffmpegPath: string; ffprobePath: string }> {
+    if (!this.resolvedPathsPromise) {
+      this.resolvedPathsPromise = this.loadExecutablePaths();
+    }
+
+    return this.resolvedPathsPromise;
+  }
+
+  private async loadExecutablePaths(): Promise<{ ffmpegPath: string; ffprobePath: string }> {
+    if (this.options.resolveExecutablePaths) {
+      const resolved = await this.options.resolveExecutablePaths();
+      return {
+        ffmpegPath: resolved.ffmpegPath ?? this.options.executablePath ?? "ffmpeg",
+        ffprobePath: resolved.ffprobePath ?? this.options.ffprobePath ?? "ffprobe",
+      };
+    }
+
+    const detectedFfmpegPath = await lookupBackendExecutablePath(this.name, this.options.rootDir);
+    const ffmpegPath = this.options.executablePath ?? detectedFfmpegPath ?? "ffmpeg";
+    const ffprobePath = this.options.ffprobePath
+      ?? await deriveFfprobePath(ffmpegPath)
+      ?? "ffprobe";
+
+    return { ffmpegPath, ffprobePath };
   }
 }
 
 async function lookupBackendStatus(name: IBackend["name"]) {
   const statuses = await inspectBackends();
   return statuses.find((status) => status.name === name) ?? null;
+}
+
+async function lookupBackendExecutablePath(name: IBackend["name"], rootDir?: string) {
+  const statuses = await inspectBackends(rootDir);
+  return statuses.find((status) => status.name === name)?.detectedPath ?? null;
 }
 
 function resolveResolution(ratio: string, resolution: string): [number, number] {
@@ -174,4 +213,24 @@ function parseFrameRate(value: string): number {
     return numerator || 0;
   }
   return Number((numerator / denominator).toFixed(2));
+}
+
+async function deriveFfprobePath(ffmpegPath: string): Promise<string | null> {
+  if (!path.isAbsolute(ffmpegPath)) {
+    return null;
+  }
+
+  const extension = path.extname(ffmpegPath);
+  const basename = path.basename(ffmpegPath, extension);
+  const siblingName = basename.toLowerCase() === "ffmpeg"
+    ? `ffprobe${extension}`
+    : "ffprobe";
+  const siblingPath = path.join(path.dirname(ffmpegPath), siblingName);
+
+  try {
+    await access(siblingPath);
+    return siblingPath;
+  } catch {
+    return null;
+  }
 }

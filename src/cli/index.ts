@@ -75,6 +75,7 @@ async function executeCommand(
   if (commandName === "forge") {
     return forgeEngineCommand(positionals, {
       dry_run: options.dry_run,
+      flags: options.flags,
       json: options.json,
       optionValues: options.optionValues,
       simulate: options.simulate,

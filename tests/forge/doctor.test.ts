@@ -28,6 +28,23 @@ test("buildForgeDoctorReport includes backend warnings and system resources", as
   const result = await buildForgeDoctorReport({
     rootDir: "C:\\Users\\sinmb\\workspace\\mediaforge",
     inspectBackends: async () => statuses,
+    inspectMediaStack: async () => ({
+      capabilities: [
+        {
+          dependencies: [],
+          id: "skyreels_ref2v",
+          label: "SkyReels Ref2V",
+          missing_dependencies: ["WanVideoWrapper node"],
+          ready: false,
+          summary: "Missing: WanVideoWrapper node",
+        },
+      ],
+      comfyui_root: "C:\\Users\\sinmb\\ComfyUI",
+      custom_nodes_dir: "C:\\Users\\sinmb\\ComfyUI\\custom_nodes",
+      models_dir: "C:\\Users\\sinmb\\ComfyUI\\models",
+      ready: false,
+      warnings: ["SkyReels Ref2V blocked: WanVideoWrapper node"],
+    }),
     loadHardwareProfile: async () => ({
       gpu: { name: "RTX 4080 Super", vram_gb: 16, cuda_compute: 8.9 },
       cpu: { name: "Ryzen 9 7950X3D", cores: 16, threads: 32 },
@@ -57,9 +74,12 @@ test("buildForgeDoctorReport includes backend warnings and system resources", as
   assert.equal(result.schema_version, "0.1");
   assert.equal(result.status, "warning");
   assert.equal(result.backends.length, 2);
+  assert.equal(result.media_stack.ready, false);
+  assert.equal(result.media_stack.capabilities[0]?.id, "skyreels_ref2v");
   assert.equal(result.system.gpu?.total_vram_gb, 16);
   assert.equal(result.system.ram.total_gb, 31.9);
   assert.ok(result.warnings.some((warning) => warning.includes("comfyui")));
+  assert.ok(result.warnings.some((warning) => warning.includes("SkyReels Ref2V")));
 });
 
 test("engine forge doctor prints forge report in JSON", () => {
@@ -67,12 +87,14 @@ test("engine forge doctor prints forge report in JSON", () => {
   const parsed = JSON.parse(result.stdout) as {
     schema_version?: string;
     backends?: Array<{ name?: string }>;
+    media_stack?: { capabilities?: Array<{ id?: string }> };
     system?: { ram?: { total_gb?: number } };
   };
 
   assert.equal(result.exitCode, 0);
   assert.equal(parsed.schema_version, "0.1");
   assert.ok(parsed.backends?.some((backend) => backend.name === "ffmpeg"));
+  assert.ok(Array.isArray(parsed.media_stack?.capabilities));
   assert.equal(typeof parsed.system?.ram?.total_gb, "number");
 });
 

@@ -1,6 +1,7 @@
 import { buildForgeDoctorReport } from "../../forge/doctor/build-forge-doctor-report.js";
 import { validateForgePaths } from "../../forge/doctor/validate-forge-paths.js";
 import type { ForgeDoctorResult, ForgePathsValidationResult } from "../../forge/contracts.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 
 export interface DashboardHealthSnapshot {
   schema_version: string;
@@ -11,7 +12,7 @@ export interface DashboardHealthSnapshot {
 }
 
 export class DashboardHealthService {
-  constructor(private readonly rootDir: string = process.cwd()) {}
+  constructor(private readonly rootDir: string = resolveMediaForgeRoot()) {}
 
   async getSnapshot(): Promise<DashboardHealthSnapshot> {
     const [doctor, paths] = await Promise.all([

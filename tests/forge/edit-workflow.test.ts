@@ -7,6 +7,7 @@ import { test } from "node:test";
 import { runInterpolateVideo } from "../../src/forge/edit/interpolate.js";
 import { runJoinClips } from "../../src/forge/edit/join.js";
 import { runRemoveObject } from "../../src/forge/edit/remove-object.js";
+import { runSmartCut } from "../../src/forge/edit/smart-cut.js";
 import { runUpscaleMedia } from "../../src/forge/edit/upscale.js";
 
 test("runJoinClips sorts numbered clips and returns the VACE workflow in simulation mode", async () => {
@@ -101,4 +102,40 @@ test("runInterpolateVideo forwards the target fps to ffmpeg", async () => {
   assert.equal(path.basename(result.output_path), "clip-interpolate.mp4");
   assert.ok(calls[0]);
   assert.match(calls[0].args.join(" "), /minterpolate=fps=60/);
+});
+
+test("runSmartCut computes clip windows and returns a highlight output", async () => {
+  const calls: string[] = [];
+
+  const result = await runSmartCut(
+    {
+      inputPath: "clip.mp4",
+      targetDurationSec: 30,
+    },
+    {
+      ffmpeg: {
+        async concat() {
+          calls.push("concat");
+          return "clip-smart-cut.mp4";
+        },
+        async cut(_input: string, start: string, end: string, output: string) {
+          calls.push(`${start}-${end}`);
+          return output;
+        },
+        async getMediaInfo() {
+          return {
+            codec: "h264",
+            duration: 90,
+            fps: 30,
+            resolution: "1920x1080",
+          };
+        },
+      },
+    },
+  );
+
+  assert.equal(result.operation, "smart-cut");
+  assert.equal(result.backend, "ffmpeg");
+  assert.equal(result.segments.length, 3);
+  assert.equal(calls.at(-1), "concat");
 });

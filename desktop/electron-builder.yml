@@ -1,0 +1,38 @@
+appId: com.mediaforge.desktop
+productName: MediaForge
+artifactName: MediaForge-Setup.exe
+directories:
+  output: release
+  buildResources: resources
+files:
+  - dist/**/*
+  - package.json
+extraResources:
+  - from: ../dist
+    to: engine
+  - from: ../config
+    to: config
+  - from: stage/config
+    to: config-stage
+  - from: stage/runtime
+    to: runtime
+  - from: stage/openclaw
+    to: openclaw
+  - from: ../dashboard/.next/standalone/dashboard
+    to: dashboard
+  - from: ../dashboard/.next/static
+    to: dashboard/.next/static
+  - from: ../dashboard/public
+    to: dashboard/public
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  shortcutName: MediaForge
+win:
+  signAndEditExecutable: false
+  target:
+    - target: nsis
+      arch:
+        - x64

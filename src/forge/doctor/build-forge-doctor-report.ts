@@ -4,7 +4,9 @@ import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 
 import { inspectBackends } from "../../backends/registry.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "../config/load-json-config.js";
+import { inspectComfyUIMediaStack } from "./inspect-comfyui-media-stack.js";
 import type {
   DiskInfo,
   ForgeDoctorResult,
@@ -16,6 +18,9 @@ import type {
 export interface ForgeDoctorDependencies {
   rootDir: string;
   inspectBackends(): Promise<ForgeDoctorResult["backends"]>;
+  inspectMediaStack(
+    backends: ForgeDoctorResult["backends"],
+  ): Promise<ForgeDoctorResult["media_stack"]>;
   loadHardwareProfile(): Promise<HardwareProfile | null>;
   getGpuInfo(): Promise<GpuInfo | null>;
   getRamInfo(): RamInfo;
@@ -25,8 +30,10 @@ export interface ForgeDoctorDependencies {
 export async function buildForgeDoctorReport(
   dependencies?: Partial<ForgeDoctorDependencies>,
 ): Promise<ForgeDoctorResult> {
-  const rootDir = dependencies?.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(dependencies?.rootDir ?? process.cwd());
   const inspectBackendsFn = dependencies?.inspectBackends ?? (() => inspectBackends(rootDir));
+  const inspectMediaStackFn = dependencies?.inspectMediaStack
+    ?? ((backends) => inspectComfyUIMediaStack(backends));
   const loadHardwareProfileFn = dependencies?.loadHardwareProfile
     ?? (() => loadHardwareProfile(rootDir));
   const getGpuInfoFn = dependencies?.getGpuInfo ?? detectGpuInfo;
@@ -39,10 +46,12 @@ export async function buildForgeDoctorReport(
     getGpuInfoFn(),
     getDiskInfoFn(rootDir),
   ]);
+  const mediaStack = await inspectMediaStackFn(backends);
 
   const warnings = backends
     .filter((backend) => backend.available === false)
     .map((backend) => `Backend unavailable: ${backend.name} (${backend.installGuideUrl})`);
+  warnings.push(...mediaStack.warnings);
 
   const status = warnings.length > 0 ? "warning" : "ok";
 
@@ -50,6 +59,7 @@ export async function buildForgeDoctorReport(
     schema_version: "0.1",
     status,
     backends,
+    media_stack: mediaStack,
     system: {
       gpu: gpuInfo,
       ram: getRamInfoFn(),

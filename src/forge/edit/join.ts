@@ -3,6 +3,7 @@ import * as path from "node:path";
 
 import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
 
 const VIDEO_EXTENSIONS = new Set([".mp4", ".mov", ".mkv", ".webm"]);
@@ -34,7 +35,7 @@ export async function runJoinClips(
   }
 
   const transition = input.transition ?? "ai";
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const requestId = createRequestId({ clipPaths, transition });
   const outputPath = path.resolve(rootDir, input.outputDir ?? "outputs", `${requestId}-join.mp4`);
   const workflowId = "wan_vace_join";
@@ -59,7 +60,7 @@ export async function runJoinClips(
     },
     rootDir,
   );
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];

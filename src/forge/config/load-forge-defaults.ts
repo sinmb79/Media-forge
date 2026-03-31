@@ -1,5 +1,9 @@
 import * as path from "node:path";
 
+import {
+  resolveMediaForgeConfigFile,
+  resolveMediaForgeRoot,
+} from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "./load-json-config.js";
 
 export interface ForgeDefaultsConfig {
@@ -21,8 +25,9 @@ export interface ForgeDefaultsConfig {
   };
 }
 
-export async function loadForgeDefaults(rootDir: string = process.cwd()): Promise<ForgeDefaultsConfig> {
+export async function loadForgeDefaults(rootDir: string = resolveMediaForgeRoot()): Promise<ForgeDefaultsConfig> {
+  const workspaceRoot = resolveMediaForgeRoot(rootDir);
   return loadJsonConfigFile<ForgeDefaultsConfig>(
-    path.resolve(rootDir, "config", "defaults.yaml"),
+    resolveMediaForgeConfigFile("defaults.yaml", workspaceRoot),
   );
 }

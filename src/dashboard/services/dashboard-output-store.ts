@@ -1,6 +1,8 @@
 import { readdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
+
 export type DashboardOutputKind = "image" | "video" | "audio" | "text" | "file";
 
 export interface DashboardOutputRecord {
@@ -22,7 +24,7 @@ const TEXT_EXTENSIONS = new Set([".json", ".txt", ".srt", ".md", ".yaml", ".yml"
 
 export class DashboardOutputStore {
   constructor(
-    private readonly rootDir: string = process.cwd(),
+    private readonly rootDir: string = resolveMediaForgeRoot(),
     private readonly outputsDirName: string = "outputs",
   ) {}
 

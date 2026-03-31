@@ -4,10 +4,16 @@ import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { OllamaBackend } from "../../backends/ollama.js";
 import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
 
 export interface SketchToImageOptions {
   desc_ko: string;
+  description?: string;
+  controlnet_mode?: "scribble" | "canny" | "lineart";
+  style_strength?: number;
+  model?: "sdxl" | "flux";
+  resolution?: "1k" | "2k";
   outputDir?: string;
   rootDir?: string;
   simulate?: boolean;
@@ -36,10 +42,10 @@ export async function runSketchToImage(
     sketchPath: options.sketchPath,
     theme: options.theme ?? null,
   });
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(options.rootDir ?? process.cwd());
   const promptBundle = await buildForgePromptBundle({
     desc_ko: options.desc_ko,
-    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ rootDir }),
+    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
     theme: options.theme,
   });
   const workflowId = "sdxl_controlnet_scribble";
@@ -61,7 +67,7 @@ export async function runSketchToImage(
     positive_prompt: promptBundle.image_prompt,
     sketch_path: options.sketchPath,
   }, rootDir);
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];

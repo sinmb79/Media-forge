@@ -2,8 +2,8 @@ import type { BackendName } from "../../backends/types.js";
 import type { HardwareProfile } from "../contracts.js";
 import { detectAvailableVramGb, optimizeMemoryPlan, type MemoryOptimizationPlan } from "../memory-optimizer.js";
 
-export type ForgeVideoMode = "from-image" | "from-text" | "long";
-export type ForgeVideoModel = "wan22" | "ltx2";
+export type ForgeVideoMode = "from-image" | "from-text" | "long" | "ref2v" | "talking" | "extend";
+export type ForgeVideoModel = "wan22" | "ltx2" | "skyreels-ref2v" | "skyreels-a2v" | "skyreels-v2v";
 export type ForgeVideoQuality = "draft" | "production";
 
 export interface ForgeVideoGenerationPlanInput {
@@ -15,6 +15,11 @@ export interface ForgeVideoGenerationPlanInput {
   model: ForgeVideoModel;
   quality: ForgeVideoQuality;
   storyboardPath?: string;
+  audioPath?: string;
+  overlapFrames?: number;
+  portraitPath?: string;
+  referencePaths?: string[];
+  sourceVideoPath?: string;
 }
 
 export interface ForgeVideoGenerationPlan {
@@ -51,6 +56,18 @@ function selectWorkflowId(
     return "wan22_svi_long";
   }
 
+  if (input.mode === "ref2v") {
+    return "skyreels_v3_ref2v_fp8";
+  }
+
+  if (input.mode === "talking") {
+    return "skyreels_v3_a2v_fp8";
+  }
+
+  if (input.mode === "extend") {
+    return "skyreels_v3_v2v_fp8";
+  }
+
   if (input.mode === "from-text") {
     return "wan22_t2v_gguf";
   }
@@ -77,6 +94,26 @@ function buildAssets(input: ForgeVideoGenerationPlanInput): Record<string, strin
 
   if (input.imagePath) {
     assets.image = input.imagePath;
+  }
+
+  if (input.referencePaths && input.referencePaths.length > 0) {
+    assets.references = input.referencePaths.join(",");
+  }
+
+  if (input.portraitPath) {
+    assets.portrait = input.portraitPath;
+  }
+
+  if (input.audioPath) {
+    assets.audio = input.audioPath;
+  }
+
+  if (input.sourceVideoPath) {
+    assets.source_video = input.sourceVideoPath;
+  }
+
+  if (typeof input.overlapFrames === "number") {
+    assets.overlap_frames = String(input.overlapFrames);
   }
 
   if (input.storyboardPath) {
@@ -117,4 +154,23 @@ function resolveMemoryPlan(input: ForgeVideoGenerationPlanInput): MemoryOptimiza
   }
 
   return optimized;
+}
+
+export function getForgeVideoModelsForMode(mode: ForgeVideoMode): ForgeVideoModel[] {
+  switch (mode) {
+    case "from-text":
+      return ["wan22"];
+    case "from-image":
+      return ["wan22", "ltx2"];
+    case "ref2v":
+      return ["skyreels-ref2v"];
+    case "talking":
+      return ["skyreels-a2v"];
+    case "extend":
+      return ["skyreels-v2v"];
+    case "long":
+      return ["wan22"];
+    default:
+      return ["wan22"];
+  }
 }

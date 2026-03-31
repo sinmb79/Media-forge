@@ -4,6 +4,7 @@ import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { OllamaBackend } from "../../backends/ollama.js";
 import { buildForgePromptBundle } from "../../prompt/forge-prompt-builder.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "../config/load-json-config.js";
 import type { HardwareProfile } from "../contracts.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
@@ -21,17 +22,24 @@ export interface ForgeVideoResult {
   workflow_id: string;
 }
 
+export interface VideoFromImageOptions {
+  desc_ko: string;
+  imagePath: string;
+  model: ForgeVideoModel;
+  outputDir?: string;
+  quality: ForgeVideoQuality;
+  rootDir?: string;
+  simulate?: boolean;
+  theme?: string | null;
+  duration_sec?: number;
+  resolution?: "720p" | "1080p";
+  aspect_ratio?: "smart" | "9:16" | "1:1" | "16:9";
+  sound_sync?: boolean;
+  seed?: number;
+}
+
 export async function runVideoFromImage(
-  input: {
-    desc_ko: string;
-    imagePath: string;
-    model: ForgeVideoModel;
-    outputDir?: string;
-    quality: ForgeVideoQuality;
-    rootDir?: string;
-    simulate?: boolean;
-    theme?: string | null;
-  },
+  input: VideoFromImageOptions,
   dependencies: {
     comfyClient?: ComfyUIBackend;
     freeVramGb?: number | null;
@@ -40,10 +48,10 @@ export async function runVideoFromImage(
   } = {},
 ): Promise<ForgeVideoResult> {
   const requestId = createRequestId(input);
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const promptBundle = await buildForgePromptBundle({
     desc_ko: input.desc_ko,
-    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ rootDir }),
+    ollamaClient: dependencies.ollamaClient ?? new OllamaBackend({ autoStart: true, rootDir }),
     theme: input.theme,
   });
   const hardwareProfile = dependencies.hardwareProfile ?? await loadHardwareProfile(rootDir);
@@ -69,12 +77,16 @@ export async function runVideoFromImage(
   }
 
   const workflow = await loadWorkflowTemplate(plan.workflow_id, {
+    duration_sec: input.duration_sec ?? 5,
     image_path: input.imagePath,
     negative_prompt: promptBundle.video_negative,
     output_path: outputPath,
     prompt: promptBundle.video_prompt,
+    resolution: input.resolution ?? "1080p",
+    seed: input.seed ?? -1,
+    sound_sync: input.sound_sync ?? false,
   }, rootDir);
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];

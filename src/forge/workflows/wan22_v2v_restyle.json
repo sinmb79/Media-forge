@@ -1,0 +1,20 @@
+{
+  "1": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "video": "{{input_path}}"
+    }
+  },
+  "2": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "{{prompt}} {{style}}"
+    }
+  },
+  "3": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

@@ -2,7 +2,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 
 import { loadForgeDefaults } from "../forge/config/load-forge-defaults.js";
+import { resolveMediaForgeRoot } from "../shared/resolve-mediaforge-root.js";
 import { inspectBackends } from "./registry.js";
+import { ensureBackendReady } from "./supervisor.js";
 import type {
   BackendExecutionRequest,
   BackendExecutionResult,
@@ -79,7 +81,17 @@ export class ComfyUIBackend implements IBackend {
       return await response.json() as ComfyUIQueueResponse;
     } catch (error) {
       if (options.autoStart ?? this.options.autoStart) {
-        await this.options.startService?.();
+        if (this.options.startService) {
+          await this.options.startService();
+        } else {
+          const ensured = await ensureBackendReady("comfyui", {
+            ...(this.options.rootDir ? { rootDir: this.options.rootDir } : {}),
+          });
+
+          if (!ensured.ready) {
+            throw new Error(ensured.reason ?? "ComfyUI auto-start failed.");
+          }
+        }
         const retryResponse = await this.fetch(baseUrl, "/prompt", {
           body: JSON.stringify(payload),
           headers: { "Content-Type": "application/json" },
@@ -165,7 +177,7 @@ export class ComfyUIBackend implements IBackend {
       return this.options.baseUrl;
     }
 
-    const defaults = await loadForgeDefaults(this.options.rootDir ?? process.cwd());
+    const defaults = await loadForgeDefaults(this.options.rootDir ?? resolveMediaForgeRoot());
     const port = defaults.comfyui?.default_port ?? 8188;
     return `http://127.0.0.1:${port}`;
   }

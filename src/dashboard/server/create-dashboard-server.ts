@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { createDashboardRouter } from "./dashboard-router.js";
 import { DashboardActionService } from "../services/dashboard-action-service.js";
 import { DashboardHealthService } from "../services/dashboard-health-service.js";
@@ -30,7 +31,7 @@ export interface StartedDashboardServer {
 export async function startDashboardServer(
   options: StartDashboardServerOptions = {},
 ): Promise<StartedDashboardServer> {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(options.rootDir ?? process.cwd());
   const host = options.host ?? "127.0.0.1";
   const port = options.port ?? 3210;
   const jobQueue = options.jobQueue ?? new DashboardJobQueue();

@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import { ComfyUIBackend } from "../../backends/comfyui.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 import { loadJsonConfigFile } from "../config/load-json-config.js";
 import type { HardwareProfile } from "../contracts.js";
 import { loadWorkflowTemplate } from "../workflows/load-workflow-template.js";
@@ -27,7 +28,7 @@ export async function runLongVideoGeneration(
   status: "simulated" | "completed";
   workflow_id: string;
 }> {
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const storyboard = await loadStoryboardDefinition(path.resolve(rootDir, input.storyboardPath));
   const requestId = createRequestId({
     scene_count: storyboard.scenes.length,
@@ -60,7 +61,7 @@ export async function runLongVideoGeneration(
     scene_count: storyboard.scenes.length,
     storyboard_json: JSON.stringify(storyboard),
   }, rootDir);
-  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ rootDir });
+  const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
   const status = await comfyClient.waitForCompletion(queued.prompt_id);
   const firstOutput = status.outputs[0];

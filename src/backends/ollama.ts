@@ -1,5 +1,7 @@
 import { loadForgeDefaults } from "../forge/config/load-forge-defaults.js";
+import { resolveMediaForgeRoot } from "../shared/resolve-mediaforge-root.js";
 import { inspectBackends } from "./registry.js";
+import { ensureBackendReady } from "./supervisor.js";
 import type {
   BackendExecutionRequest,
   BackendExecutionResult,
@@ -11,6 +13,7 @@ interface FetchLike {
 }
 
 export interface OllamaBackendOptions {
+  autoStart?: boolean;
   baseUrl?: string;
   defaultModel?: string;
   fetchFn?: FetchLike;
@@ -52,20 +55,43 @@ export class OllamaBackend implements IBackend {
     systemPrompt: string,
   ): Promise<string> {
     const baseUrl = await this.resolveBaseUrl();
-    const response = await (this.options.fetchFn ?? fetch)(`${baseUrl}/api/generate`, {
-      body: JSON.stringify({
-        format: "json",
-        model: model ?? await this.resolveDefaultModel(),
-        prompt,
-        stream: false,
-        system: systemPrompt,
-      }),
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-    });
+    const performRequest = async () => {
+      const response = await (this.options.fetchFn ?? fetch)(`${baseUrl}/api/generate`, {
+        body: JSON.stringify({
+          format: "json",
+          model: model ?? await this.resolveDefaultModel(),
+          prompt,
+          stream: false,
+          system: systemPrompt,
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
 
-    if (!response.ok) {
-      throw new Error(`Ollama request failed: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Ollama request failed: ${response.status} ${response.statusText}`);
+      }
+
+      return response;
+    };
+
+    let response: Response;
+    try {
+      response = await performRequest();
+    } catch (error) {
+      if (!this.options.autoStart) {
+        throw error;
+      }
+
+      const ensured = await ensureBackendReady("ollama", {
+        ...(this.options.rootDir ? { rootDir: this.options.rootDir } : {}),
+      });
+
+      if (!ensured.ready) {
+        throw new Error(ensured.reason ?? "Ollama auto-start failed.");
+      }
+
+      response = await performRequest();
     }
 
     const payload = await response.json() as { response?: string; thinking?: string };
@@ -92,7 +118,7 @@ export class OllamaBackend implements IBackend {
       return this.options.baseUrl;
     }
 
-    const defaults = await loadForgeDefaults(this.options.rootDir ?? process.cwd());
+    const defaults = await loadForgeDefaults(this.options.rootDir ?? resolveMediaForgeRoot());
     const port = defaults.ollama?.default_port ?? 11434;
     return `http://127.0.0.1:${port}`;
   }
@@ -102,7 +128,7 @@ export class OllamaBackend implements IBackend {
       return this.options.defaultModel;
     }
 
-    const defaults = await loadForgeDefaults(this.options.rootDir ?? process.cwd());
+    const defaults = await loadForgeDefaults(this.options.rootDir ?? resolveMediaForgeRoot());
     return defaults.ollama?.default_model ?? "qwen3:14b";
   }
 }

@@ -1,0 +1,42 @@
+{
+  "1": {
+    "inputs": {
+      "model_path": "{{model_path}}"
+    },
+    "class_type": "VibeVoiceModelLoader"
+  },
+  "2": {
+    "inputs": {
+      "script_path": "{{script_path}}",
+      "speaker_names": "{{speaker_names}}"
+    },
+    "class_type": "VibeVoiceLoadScript"
+  },
+  "3": {
+    "inputs": {
+      "attention_mode": "{{attention_mode}}",
+      "cfg_scale": "{{cfg_scale}}",
+      "inference_steps": "{{inference_steps}}",
+      "model": [
+        "1",
+        0
+      ],
+      "quantize_llm_4bit": "{{quantize_llm_4bit}}",
+      "script": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "VibeVoiceGenerate"
+  },
+  "4": {
+    "inputs": {
+      "audio": [
+        "3",
+        0
+      ],
+      "filename_prefix": "{{output_path}}"
+    },
+    "class_type": "VHS_AudioOutput"
+  }
+}

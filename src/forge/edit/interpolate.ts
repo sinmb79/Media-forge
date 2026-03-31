@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import { FFmpegBackend } from "../../backends/ffmpeg.js";
 import { createRequestId } from "../../shared/request-id.js";
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
 
 export interface InterpolateVideoResult {
   backend: "ffmpeg";
@@ -32,7 +33,7 @@ export async function runInterpolateVideo(
     };
   } = {},
 ): Promise<InterpolateVideoResult> {
-  const rootDir = input.rootDir ?? process.cwd();
+  const rootDir = resolveMediaForgeRoot(input.rootDir ?? process.cwd());
   const requestId = createRequestId({
     fps: input.fps,
     inputPath: input.inputPath,

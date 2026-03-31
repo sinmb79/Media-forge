@@ -1,0 +1,26 @@
+{
+  "1": {
+    "class_type": "SkyReelsRef2VLoader",
+    "inputs": {
+      "model": "Wan21-SkyReelsV3-Ref2V_fp8_scaled_mixed.safetensors",
+      "references": "{{reference_paths}}",
+      "text_encoder": "umt5-xxl-enc-fp8_e4m3fn.safetensors",
+      "vae": "Wan2_1_VAE_bf16.safetensors"
+    }
+  },
+  "2": {
+    "class_type": "SkyReelsRef2VSampler",
+    "inputs": {
+      "duration_sec": "{{duration_sec}}",
+      "negative_prompt": "{{negative_prompt}}",
+      "prompt": "{{prompt}}",
+      "seed": "{{seed}}"
+    }
+  },
+  "3": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "filename_prefix": "{{output_path}}"
+    }
+  }
+}

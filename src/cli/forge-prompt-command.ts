@@ -25,7 +25,7 @@ export async function forgePromptCommand(
 
     const bundle = await buildForgePromptBundle({
       desc_ko: desc,
-      ollamaClient: new OllamaBackend(),
+      ollamaClient: new OllamaBackend({ autoStart: true }),
       theme,
       ...(model ? { model } : {}),
     });

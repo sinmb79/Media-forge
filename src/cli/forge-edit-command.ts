@@ -5,7 +5,9 @@ import { runInterpolateVideo } from "../forge/edit/interpolate.js";
 import { runJoinClips } from "../forge/edit/join.js";
 import { runRemoveObject } from "../forge/edit/remove-object.js";
 import { runRemoveWatermark } from "../forge/edit/remove-watermark.js";
+import { runSmartCut } from "../forge/edit/smart-cut.js";
 import { runUpscaleMedia } from "../forge/edit/upscale.js";
+import { resolveMediaForgeRoot } from "../shared/resolve-mediaforge-root.js";
 
 export async function forgeEditCommand(
   positionals: string[],
@@ -21,7 +23,7 @@ export async function forgeEditCommand(
   if (!subcommand) {
     return {
       exitCode: 1,
-      output: "Usage: engine forge edit <join|concat|cut|speed|resize|stabilize|upscale|interpolate|remove-watermark|remove-object> ...\n",
+      output: "Usage: engine forge edit <join|concat|cut|speed|resize|stabilize|upscale|interpolate|remove-watermark|remove-object|smart-cut> ...\n",
     };
   }
 
@@ -106,18 +108,29 @@ export async function forgeEditCommand(
           maskPath: options.optionValues.mask?.[0] ?? "",
         }),
       );
+    case "smart-cut":
+      if (!input) break;
+      return renderOperationResult(
+        options.json,
+        "smart-cut",
+        await runSmartCut({
+          inputPath: input,
+          simulate: options.simulate,
+          targetDurationSec: Number(options.optionValues["target-duration"]?.[0] ?? "30"),
+        }),
+      );
     default:
       break;
   }
 
   return {
     exitCode: 1,
-    output: "Usage: engine forge edit <join|concat|cut|speed|resize|stabilize|upscale|interpolate|remove-watermark|remove-object> ...\n",
+    output: "Usage: engine forge edit <join|concat|cut|speed|resize|stabilize|upscale|interpolate|remove-watermark|remove-object|smart-cut> ...\n",
   };
 }
 
 function resolveEditOutputPath(input: string, operation: string): string {
-  return path.resolve(process.cwd(), "outputs", `${path.basename(input, path.extname(input))}-${operation}${path.extname(input) || ".mp4"}`);
+  return path.resolve(resolveMediaForgeRoot(), "outputs", `${path.basename(input, path.extname(input))}-${operation}${path.extname(input) || ".mp4"}`);
 }
 
 function successResponse(json: boolean, operation: string, outputPath: string) {

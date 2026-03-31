@@ -1,0 +1,24 @@
+[
+  {
+    "id": "prop-sword",
+    "name": "Sword",
+    "name_ko": "소드",
+    "category": "props",
+    "type": "reference_image",
+    "is_official": true,
+    "data": {
+      "prompt": "ornate silver sword, detailed fantasy prop"
+    }
+  },
+  {
+    "id": "prop-butterfly",
+    "name": "Butterfly",
+    "name_ko": "나비",
+    "category": "props",
+    "type": "reference_image",
+    "is_official": true,
+    "data": {
+      "prompt": "luminous fantasy butterfly, delicate wings"
+    }
+  }
+]

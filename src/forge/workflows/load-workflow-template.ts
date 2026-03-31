@@ -1,12 +1,14 @@
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 
+import { resolveMediaForgeRoot } from "../../shared/resolve-mediaforge-root.js";
+
 export async function loadWorkflowTemplate(
   workflowId: string,
   variables: Record<string, string | number | boolean>,
-  rootDir: string = process.cwd(),
+  rootDir: string = resolveMediaForgeRoot(),
 ): Promise<unknown> {
-  const filePath = path.resolve(rootDir, "src", "forge", "workflows", `${workflowId}.json`);
+  const filePath = path.resolve(resolveMediaForgeRoot(rootDir), "src", "forge", "workflows", `${workflowId}.json`);
   const raw = await readFile(filePath, "utf8");
   const parsed = JSON.parse(raw) as unknown;
   return substituteTemplateValues(parsed, variables);
