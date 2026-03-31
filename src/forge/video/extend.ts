@@ -78,7 +78,7 @@ export async function runSkyReelsVideoExtend(
     output_path: outputPath,
     overlap_frames: input.overlap_frames ?? 8,
     prompt: promptBundle.video_prompt,
-    seed: input.seed ?? -1,
+    seed: input.seed ?? Math.floor(Math.random() * 2147483647),
     source_video_path: input.sourceVideoPath,
   }, rootDir);
   const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });

@@ -83,7 +83,7 @@ export async function runVideoFromImage(
     output_path: outputPath,
     prompt: promptBundle.video_prompt,
     resolution: input.resolution ?? "1080p",
-    seed: input.seed ?? -1,
+    seed: input.seed ?? Math.floor(Math.random() * 2147483647),
     sound_sync: input.sound_sync ?? false,
   }, rootDir);
   const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });

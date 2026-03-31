@@ -67,7 +67,7 @@ export async function runSkyReelsRef2V(
     output_path: outputPath,
     prompt: promptBundle.video_prompt,
     reference_paths: input.referencePaths.join(","),
-    seed: input.seed ?? -1,
+    seed: input.seed ?? Math.floor(Math.random() * 2147483647),
   }, rootDir);
   const comfyClient = dependencies.comfyClient ?? new ComfyUIBackend({ autoStart: true, rootDir });
   const queued = await comfyClient.queueWorkflow(workflow);
