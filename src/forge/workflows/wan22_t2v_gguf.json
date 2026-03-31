@@ -23,7 +23,8 @@
   "3": {
     "class_type": "WanVideoVAELoader",
     "inputs": {
-      "model_name": "split_files\\vae\\wan_2.1_vae.safetensors"
+      "model_name": "split_files\\vae\\wan_2.1_vae.safetensors",
+      "precision": "bf16"
     }
   },
   "4": {
