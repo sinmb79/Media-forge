@@ -136,7 +136,7 @@ export class ComfyUIBackend implements IBackend {
     promptId: string,
     options: { maxAttempts?: number; pollIntervalMs?: number } = {},
   ): Promise<ComfyUIStatusResult> {
-    const maxAttempts = options.maxAttempts ?? 60;
+    const maxAttempts = options.maxAttempts ?? 360;
 
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const status = await this.getStatus(promptId);
@@ -144,7 +144,7 @@ export class ComfyUIBackend implements IBackend {
         return status;
       }
 
-      await sleep(options.pollIntervalMs ?? this.options.pollIntervalMs ?? 1000);
+      await sleep(options.pollIntervalMs ?? this.options.pollIntervalMs ?? 5000);
     }
 
     throw new Error(`Timed out waiting for ComfyUI prompt ${promptId}`);
