@@ -66,9 +66,16 @@
     }
   },
   "8": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "images": ["7", 0],
+      "fps": 16.0
+    }
+  },
+  "9": {
     "class_type": "SaveVideo",
     "inputs": {
-      "video": ["7", 0],
+      "video": ["8", 0],
       "filename_prefix": "{{output_path}}",
       "format": "mp4",
       "codec": "h264"
