@@ -1,0 +1,128 @@
+{
+  "name": "MediaForge - Dashboard API",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-980, 140]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mediaforge-dashboard-video",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-980, 340],
+      "webhookId": "mediaforge-dashboard-video"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": false,
+        "values": {
+          "string": [
+            { "name": "desc", "value": "={{ $json.desc || '갈색 바위 괴물이 자기 머리를 두드리다가 눈이 빙글빙글 돈다' }}" },
+            { "name": "model", "value": "={{ $json.model || 'skyreels-ref2v' }}" },
+            { "name": "quality", "value": "={{ $json.quality || 'production' }}" },
+            { "name": "outputPath", "value": "={{ $json.outputPath || 'outputs/n8n-dashboard-auto-extend.mp4' }}" },
+            { "name": "fromImagePath", "value": "={{ $json.fromImagePath || '' }}" }
+          ],
+          "number": [
+            { "name": "candidates", "value": "={{ $json.candidates || 2 }}" },
+            { "name": "seedDuration", "value": "={{ $json.seedDuration || 10 }}" },
+            { "name": "extendLoops", "value": "={{ $json.extendLoops || 1 }}" },
+            { "name": "extendDuration", "value": "={{ $json.extendDuration || 5 }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-payload",
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-700, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.MEDIAFORGE_DASHBOARD_URL || 'http://127.0.0.1:3000') + '/api/video/auto-extend' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\"desc\": $json.desc, \"model\": $json.model, \"quality\": $json.quality, \"candidates\": $json.candidates, \"seedDuration\": $json.seedDuration, \"extendLoops\": $json.extendLoops, \"extendDuration\": $json.extendDuration, \"outputPath\": $json.outputPath, \"fromImagePath\": $json.fromImagePath || undefined}"
+      },
+      "id": "queue-job",
+      "name": "Queue Auto Extend Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-420, 240]
+    },
+    {
+      "parameters": {
+        "amount": 15,
+        "unit": "seconds"
+      },
+      "id": "wait-for-job",
+      "name": "Wait 15s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [-160, 240]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.MEDIAFORGE_DASHBOARD_URL || 'http://127.0.0.1:3000') + '/api/jobs' }}"
+      },
+      "id": "fetch-jobs",
+      "name": "Fetch Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [100, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobId = $item(0).$node['Queue Auto Extend Job'].json.job_id;\nconst items = Array.isArray($json.items) ? $json.items : [];\nconst job = items.find((entry) => entry.id === jobId) || null;\nreturn [{ json: { jobId, job } }];"
+      },
+      "id": "select-job",
+      "name": "Select Job",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [360, 240]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Normalize Payload", "type": "main", "index": 0 }]]
+    },
+    "Webhook Trigger": {
+      "main": [[{ "node": "Normalize Payload", "type": "main", "index": 0 }]]
+    },
+    "Normalize Payload": {
+      "main": [[{ "node": "Queue Auto Extend Job", "type": "main", "index": 0 }]]
+    },
+    "Queue Auto Extend Job": {
+      "main": [[{ "node": "Wait 15s", "type": "main", "index": 0 }]]
+    },
+    "Wait 15s": {
+      "main": [[{ "node": "Fetch Jobs", "type": "main", "index": 0 }]]
+    },
+    "Fetch Jobs": {
+      "main": [[{ "node": "Select Job", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "mediaforge-dashboard-webhook-v1",
+  "tags": []
+}

@@ -17,6 +17,15 @@
   "engines": {
     "node": ">=24"
   },
+  "n8n": {
+    "docs": "./n8n/README.md",
+    "workflows": [
+      "./n8n/workflow-mediaforge-cli.json",
+      "./n8n/workflow-mediaforge-webhook.json",
+      "./n8n/workflow-openclaw-monitor.json",
+      "./n8n/workflow-daily-report.json"
+    ]
+  },
   "devDependencies": {
     "@types/node": "^24.5.2",
     "typescript": "^5.9.2"

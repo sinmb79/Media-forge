@@ -1,0 +1,118 @@
+{
+  "name": "MediaForge - Daily Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 22,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 22:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-820, 220]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.MEDIAFORGE_DASHBOARD_URL || 'http://127.0.0.1:3000') + '/api/queue' }}"
+      },
+      "id": "fetch-queue",
+      "name": "Fetch Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-560, 120]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.MEDIAFORGE_DASHBOARD_URL || 'http://127.0.0.1:3000') + '/api/outputs' }}"
+      },
+      "id": "fetch-outputs",
+      "name": "Fetch Outputs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-560, 220]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.OPENCLAW_SNAPSHOT_URL || (($env.MEDIAFORGE_DASHBOARD_URL || 'http://127.0.0.1:3000') + '/api/runtime/openclaw') }}"
+      },
+      "id": "fetch-openclaw",
+      "name": "Fetch OpenClaw",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-560, 320]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-a",
+      "name": "Merge Queue + Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [-380, 180]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-b",
+      "name": "Merge With OpenClaw",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [-220, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "const queue = $item(0).$node['Fetch Queue'].json;\nconst outputs = $item(0).$node['Fetch Outputs'].json;\nconst openclaw = $item(0).$node['Fetch OpenClaw'].json;\nconst jobs = Array.isArray(queue.items) ? queue.items : [];\nconst recentOutputs = Array.isArray(outputs.items) ? outputs.items : [];\nconst successCount = jobs.filter((job) => job.status === 'succeeded').length;\nconst failedCount = jobs.filter((job) => job.status === 'failed').length;\nconst runningCount = jobs.filter((job) => job.status === 'running').length;\nconst summary = [\n  '📊 MediaForge 일일 리포트',\n  '─────────────────',\n  `🎬 완료 작업: ${successCount}`,\n  `⚠️ 실패 작업: ${failedCount}`,\n  `⏳ 진행 중: ${runningCount}`,\n  `📦 최근 산출물: ${recentOutputs.length}`,\n  `🤖 OpenClaw: ${openclaw.bridge?.healthy === true || openclaw.status === 'ready' ? '정상' : '확인 필요'}`,\n  '─────────────────'\n].join('\\n');\nreturn [{ json: { summary } }];"
+      },
+      "id": "build-summary",
+      "name": "Build Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-200, 220]
+    }
+  ],
+  "connections": {
+    "Daily 22:00": {
+      "main": [[
+        { "node": "Fetch Queue", "type": "main", "index": 0 },
+        { "node": "Fetch Outputs", "type": "main", "index": 0 },
+        { "node": "Fetch OpenClaw", "type": "main", "index": 0 }
+      ]]
+    },
+    "Fetch Queue": {
+      "main": [[{ "node": "Merge Queue + Outputs", "type": "main", "index": 0 }]]
+    },
+    "Fetch Outputs": {
+      "main": [[{ "node": "Merge Queue + Outputs", "type": "main", "index": 1 }]]
+    },
+    "Fetch OpenClaw": {
+      "main": [[{ "node": "Merge With OpenClaw", "type": "main", "index": 1 }]]
+    },
+    "Merge Queue + Outputs": {
+      "main": [[{ "node": "Merge With OpenClaw", "type": "main", "index": 0 }]]
+    },
+    "Merge With OpenClaw": {
+      "main": [[{ "node": "Build Summary", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "mediaforge-daily-report-v1",
+  "tags": []
+}

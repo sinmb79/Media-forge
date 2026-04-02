@@ -1,0 +1,143 @@
+{
+  "name": "MediaForge - CLI Auto Extend",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-1040, 120]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mediaforge-auto-extend-cli",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-1040, 320],
+      "webhookId": "mediaforge-auto-extend-cli"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": false,
+        "values": {
+          "string": [
+            {
+              "name": "desc",
+              "value": "={{ $json.desc || '갈색 바위 괴물이 자기 머리를 두드리다가 눈이 빙글빙글 돈다' }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.model || 'skyreels-ref2v' }}"
+            },
+            {
+              "name": "referencePaths",
+              "value": "={{ Array.isArray($json.referencePaths) ? $json.referencePaths.join(',') : ($json.referencePaths || 'characters/noggin-front.png,characters/noggin-side.png') }}"
+            },
+            {
+              "name": "outputPath",
+              "value": "={{ $json.outputPath || 'outputs/n8n-auto-extend.mp4' }}"
+            },
+            {
+              "name": "quality",
+              "value": "={{ $json.quality || 'production' }}"
+            },
+            {
+              "name": "autoPick",
+              "value": "={{ $json.autoPick || 'best' }}"
+            },
+            {
+              "name": "withAudio",
+              "value": "={{ $json.withAudio === false ? 'false' : 'true' }}"
+            }
+          ],
+          "number": [
+            {
+              "name": "candidates",
+              "value": "={{ $json.candidates || 2 }}"
+            },
+            {
+              "name": "seedDuration",
+              "value": "={{ $json.seedDuration || 10 }}"
+            },
+            {
+              "name": "extendLoops",
+              "value": "={{ $json.extendLoops || 1 }}"
+            },
+            {
+              "name": "extendDuration",
+              "value": "={{ $json.extendDuration || 5 }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-760, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "const q = (value) => `\\\"${String(value ?? '').replace(/\\\"/g, \"'\")}\\\"`;\nconst root = $env.MEDIAFORGE_PATH || 'C:/Users/sinmb/workspace/mediaforge';\nconst refs = String($json.referencePaths || '').trim();\nconst args = [\n  'npm run engine -- forge pipeline auto-extend',\n  `--desc ${q($json.desc)}`,\n  `--model ${q($json.model)}`,\n  `--candidates ${Number($json.candidates || 2)}`,\n  `--seed-duration ${Number($json.seedDuration || 10)}`,\n  `--extend-loops ${Number($json.extendLoops || 1)}`,\n  `--extend-duration ${Number($json.extendDuration || 5)}`,\n  `--auto-pick ${q($json.autoPick || 'best')}`,\n  `--quality ${q($json.quality || 'production')}`,\n  `--output ${q($json.outputPath || 'outputs/n8n-auto-extend.mp4')}`,\n  '--json'\n];\nif (refs.length > 0) {\n  args.splice(3, 0, `--refs ${q(refs)}`);\n}\nif (String($json.withAudio) === 'true') {\n  args.splice(args.length - 1, 0, '--with-audio');\n}\nreturn [{ json: { ...$json, command: `powershell -NoProfile -Command \\\"Set-Location '${root.replace(/'/g, \"''\")}'; ${args.join(' ')}\\\"` } }];"
+      },
+      "id": "build-command",
+      "name": "Build Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-500, 220]
+    },
+    {
+      "parameters": {
+        "command": "={{ $json.command }}"
+      },
+      "id": "execute-mediaforge",
+      "name": "Execute MediaForge CLI",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [-220, 220]
+    },
+    {
+      "parameters": {
+        "jsCode": "const stdout = String($json.stdout || '').trim();\nconst lines = stdout.split(/\\r?\\n/).filter(Boolean);\nconst maybeJson = lines.length > 0 ? lines[lines.length - 1] : '{}';\nlet parsed;\ntry {\n  parsed = JSON.parse(maybeJson);\n} catch {\n  parsed = { raw_stdout: stdout };\n}\nreturn [{ json: { ...$json, parsed } }];"
+      },
+      "id": "parse-result",
+      "name": "Parse Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 220]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Normalize Input", "type": "main", "index": 0 }]]
+    },
+    "Webhook Trigger": {
+      "main": [[{ "node": "Normalize Input", "type": "main", "index": 0 }]]
+    },
+    "Normalize Input": {
+      "main": [[{ "node": "Build Command", "type": "main", "index": 0 }]]
+    },
+    "Build Command": {
+      "main": [[{ "node": "Execute MediaForge CLI", "type": "main", "index": 0 }]]
+    },
+    "Execute MediaForge CLI": {
+      "main": [[{ "node": "Parse Result", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "mediaforge-cli-auto-extend-v1",
+  "tags": []
+}

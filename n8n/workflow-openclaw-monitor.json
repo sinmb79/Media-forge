@@ -1,0 +1,86 @@
+{
+  "name": "MediaForge - OpenClaw Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-720, 180]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.OPENCLAW_SNAPSHOT_URL || (($env.MEDIAFORGE_DASHBOARD_URL || 'http://127.0.0.1:3000') + '/api/runtime/openclaw') }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "fetch-snapshot",
+      "name": "Fetch OpenClaw Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-460, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.bridge?.healthy === true || $json.status === 'ready' }}",
+              "operation": "isFalse"
+            }
+          ]
+        }
+      },
+      "id": "needs-restart",
+      "name": "Needs Restart?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-200, 180]
+    },
+    {
+      "parameters": {
+        "command": "={{ 'powershell -NoProfile -ExecutionPolicy Bypass -File \"' + ($env.MEDIAFORGE_PATH || 'C:/Users/sinmb/workspace/mediaforge') + '/n8n/webhook-handlers/restart-openclaw.ps1\"' }}"
+      },
+      "id": "restart-openclaw",
+      "name": "Restart OpenClaw",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [80, 120]
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [[{ "node": "Fetch OpenClaw Snapshot", "type": "main", "index": 0 }]]
+    },
+    "Fetch OpenClaw Snapshot": {
+      "main": [[{ "node": "Needs Restart?", "type": "main", "index": 0 }]]
+    },
+    "Needs Restart?": {
+      "main": [[{ "node": "Restart OpenClaw", "type": "main", "index": 0 }], []]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "mediaforge-openclaw-monitor-v1",
+  "tags": []
+}
